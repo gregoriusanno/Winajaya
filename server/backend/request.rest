@@ -1,0 +1,15 @@
+### Get All Karyawan
+GET http://localhost:3002/api/karyawan
+Content-Type: application/json
+
+### Get Karyawan by ID
+GET http://localhost:3002/api/karyawan/1
+Content-Type: application/json
+
+### Get Karyawan by Name (jika ada)
+GET http://localhost:3002/api/karyawan/search?nama=john
+Content-Type: application/json
+
+### Test Server Running
+GET http://localhost:3002/
+Content-Type: application/json 
