@@ -60,8 +60,8 @@ const AbsenAkhir = () => {
     const currentAbsentId = localStorage.getItem("currentAbsentId");
     const token = localStorage.getItem("token");
 
-    console.log('Debug Absen Pulang: Token =', token);
-    console.log('Debug Absen Pulang: currentAbsentId =', currentAbsentId);
+    console.log("Debug Absen Pulang: Token =", token);
+    console.log("Debug Absen Pulang: currentAbsentId =", currentAbsentId);
 
     if (!currentAbsentId || !token) {
       setError("Data absensi atau token tidak ditemukan. Silakan coba lagi.");
@@ -72,20 +72,17 @@ const AbsenAkhir = () => {
     const clock_out = now.toTimeString().slice(0, 8);
 
     try {
-      const res = await fetch(
-        `https://api.katsikat.id/absents/${currentAbsentId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            clock_out,
-            description: deskripsi, // Sertakan deskripsi evaluasi harian
-          }),
-        }
-      );
+      const res = await fetch(``, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          clock_out,
+          description: deskripsi, // Sertakan deskripsi evaluasi harian
+        }),
+      });
 
       const data = await res.json();
 

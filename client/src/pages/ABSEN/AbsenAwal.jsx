@@ -190,7 +190,7 @@ const Absensi = () => {
       }
       console.log('Kirim absen hadir dengan:', { employee_id, branch_id, date, clock_in });
       // Kirim POST ke absents
-      const res = await fetch('https://api.katsikat.id/absents', {
+      const res = await fetch('', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -23,11 +23,11 @@ const LoginKaryawan = () => {
     setError("");
 
     try {
-      const loginUrl = 'https://api.katsikat.id/login';
-      console.log('Attempting login to:', loginUrl);
-      console.log('Login payload:', {
+      const loginUrl = "";
+      console.log("Attempting login to:", loginUrl);
+      console.log("Login payload:", {
         email: formData.email,
-        password: formData.password
+        password: formData.password,
       });
 
       const response = await axios.post(
@@ -38,9 +38,9 @@ const LoginKaryawan = () => {
         },
         {
           headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -48,22 +48,26 @@ const LoginKaryawan = () => {
 
       if (response.data?.data?.token) {
         localStorage.setItem("token", response.data.data.token);
-        
+
         const userData = { ...response.data.data.userCheck };
         localStorage.setItem("userData", JSON.stringify(userData));
-        console.log('userData berhasil disimpan ke localStorage:', userData);
+        console.log("userData berhasil disimpan ke localStorage:", userData);
 
         // --- Tambahan: Cek status absen/izin ---
         try {
           const token = response.data.data.token;
           const employeeId = userData.id;
-          const checkRes = await axios.get(`https://api.katsikat.id/check-today?employee_id=${employeeId}`, {
+          const checkRes = await axios.get(``, {
             headers: {
-              'Authorization': `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           });
           const checkData = checkRes.data;
-          if (checkData.data && checkData.statusCode === 200 && checkData.data.isTodayAbsent) {
+          if (
+            checkData.data &&
+            checkData.statusCode === 200 &&
+            checkData.data.isTodayAbsent
+          ) {
             // Sudah absen/izin hari ini
             // Cek status absen/izin
             const status = checkData.data.absentData?.status;
@@ -71,15 +75,15 @@ const LoginKaryawan = () => {
             if (absentId) {
               localStorage.setItem("currentAbsentId", absentId);
             }
-            if (status === 'Present' || status === 'Hadir') {
-              sessionStorage.setItem('fromPresent', 'true');
+            if (status === "Present" || status === "Hadir") {
+              sessionStorage.setItem("fromPresent", "true");
               localStorage.setItem("workStartTime", new Date().toISOString());
               navigate("/loginSuccess");
               return;
             } else if (
-              status === 'Libur Bersama' ||
-              status === 'Sick' ||
-              status === 'Keperluan Pribadi'
+              status === "Libur Bersama" ||
+              status === "Sick" ||
+              status === "Keperluan Pribadi"
             ) {
               navigate("/izin-success");
               return;
@@ -95,7 +99,7 @@ const LoginKaryawan = () => {
           }
         } catch (err) {
           // Jika gagal cek status, fallback ke absensi
-          console.error('Gagal cek status absen:', err);
+          console.error("Gagal cek status absen:", err);
           navigate("/absensi");
           return;
         }
@@ -109,13 +113,15 @@ const LoginKaryawan = () => {
       console.error("Error details:", {
         status: error.response?.status,
         data: error.response?.data,
-        headers: error.response?.headers
+        headers: error.response?.headers,
       });
-      
+
       if (error.response?.status === 404) {
         setError("URL login tidak ditemukan. Mohon periksa koneksi.");
       } else {
-        setError(error.response?.data?.message || "Terjadi kesalahan saat login");
+        setError(
+          error.response?.data?.message || "Terjadi kesalahan saat login"
+        );
       }
     }
 
@@ -131,10 +137,10 @@ const LoginKaryawan = () => {
       <div className="w-full sm:w-[380px] p-6 sm:p-8 my-auto bg-white rounded-3xl p-4 opacity-100 outline outline-2 outline-[#EEF1F7]">
         <div className="text-center mb-6">
           <h2 className="text-2xl sm:text-3xl font-bebas font-normal text-gray-800 tracking-wide">
-          Masuk akun karyawan
+            Masuk akun karyawan
           </h2>
           <p className="mt-2 text-xs text-gray-600 px-1 font-montserrat">
-          Silakan masukkan data Anda di bawah ini untuk mengakses akun Anda!
+            Silakan masukkan data Anda di bawah ini untuk mengakses akun Anda!
           </p>
         </div>
 
