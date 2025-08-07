@@ -436,7 +436,7 @@ const BerandaTeknisi = () => {
         <div className="mx-auto px-4 md:px-10 pt-10 pb-6">
           <div className="max-w-[390px] md:max-w-none mx-auto mt-[50px]">
             <WorkTimeAlert />
-            <BreakTimeAlert />
+
 
             {/* Date Range Picker */}
             <div className="mb-2 bg-white rounded-3xl p-4 mt-4 opacity-100 outline outline-2 outline-[#EEF1F7]">

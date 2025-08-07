@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import LordIcon from "../../components/Design/LordIcon";
 import AnimatedButton from "../../components/Design/AnimatedButton";
+import clockImage from "../../assets/images/clock.png";
 
 const AbsenAkhir = () => {
   const navigate = useNavigate();
@@ -107,15 +107,11 @@ const AbsenAkhir = () => {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
+      
       <div className="max-w-[390px] w-full flex flex-col items-center">
-        {/* Gambar */}
-        <LordIcon
-          src="https://cdn.lordicon.com/gdowkrjt.json"
-          trigger="loop"
-          state="loop-oscillate"
-          style={{ width: "180px", height: "180px", marginTop: "-50px" }}
-        />
-
+        <div className="flex justify-center mb-6">
+          <img src={clockImage} alt="Clock" className="w-32 h-32" />
+        </div>
         {/* Teks Terima Kasih */}
         <h2 className="text-3xl sm:text-3xl font-bebas font-normal text-gray-800 tracking-wide mb-2 mt-4">
           TERIMA KASIH
@@ -134,26 +130,10 @@ const AbsenAkhir = () => {
           </p>
         </div>
 
-        {/* Area Input Deskripsi */}
-        <div className="w-full max-w-xs mb-6">
-          <textarea
-            value={deskripsi}
-            onChange={(e) => {
-              setDeskripsi(e.target.value);
-              setError("");
-            }}
-            placeholder="Masukkan hasil evaluasi harian Anda! (min. 3 kata)"
-            className="w-full p-4 font-montserrat text-sm rounded-2xl outline outline-2 outline-[#EEF1F7] resize-none h-30 text-gray-600"
-          />
-          {error && (
-            <p className="text-red-500 text-xs mt-1 font-montserrat">{error}</p>
-          )}
-        </div>
-
         {/* Button Selesai */}
         <AnimatedButton
           onClick={handleSelesaiKerja}
-          variant="blue"
+          variant="red"
           className="max-w-xs w-full py-3 px-6 font-montserrat font-semibold rounded-2xl text-sm"
         >
           Absen Pulang

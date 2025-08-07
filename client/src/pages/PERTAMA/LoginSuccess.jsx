@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import AnimatedButton from "../../components/Design/AnimatedButton";
 import LordIcon from "../../components/Design/LordIcon";
+import locationImage from "../../assets/images/location.png";
 
 const LoginSuccess = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const LoginSuccess = () => {
   };
 
   const handleContinue = () => {
-    navigate("/pilih-role");
+    navigate("/BerandaTeknisi");
   };
 
   return (
@@ -20,11 +21,7 @@ const LoginSuccess = () => {
       <div className="w-full sm:w-[380px] p-8 sm:p-8 my-auto bg-white rounded-3xl outline outline-2 outline-[#EEF1F7]">
         {/* Illustration */}
         <div className="flex justify-center mb-6">
-          <LordIcon
-            src="https://cdn.lordicon.com/dhmavvpz.json"
-            trigger="loop"
-            style={{ width: "120px", height: "120px" }}
-          />
+          <img src={locationImage} alt="Location" className="w-32 h-32" />
         </div>
 
         {/* Success Message */}
@@ -42,7 +39,7 @@ const LoginSuccess = () => {
           type="button"
           onClick={handleContinue}
           className="h-[40px] w-full py-3.5 px-4 rounded-xl font-montserrat flex items-center justify-center font-semibold"
-          variant="blue"
+          variant="red"
         >
           Lanjutkan
         </AnimatedButton>

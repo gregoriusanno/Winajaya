@@ -200,7 +200,7 @@ const LoginKaryawan = () => {
 
           <AnimatedButton
             type="submit"
-            className="w-full h-[40px] py-3 sm:py-3.5 px-4 mt-2 bg-gradient-to-r from-[#5096FC] to-[#7BD1FD] text-white rounded-xl opacity-100 font-montserrat font-semibold flex items-center justify-center text-sm"
+            className="w-full h-[40px] py-3 sm:py-3.5 px-4 mt-2 bg-gradient-to-r from-[#ffe2e5] to-[#ff5568] text-white rounded-xl opacity-100 font-montserrat font-semibold flex items-center justify-center text-sm"
           >
             Masuk
           </AnimatedButton>
