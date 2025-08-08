@@ -14,7 +14,7 @@ const Absensi = sequelize.define(
       allowNull: false,
       references: {
         model: "users",
-        key: "id",
+        key: "userId",
       },
     },
     clockIn: {
@@ -60,15 +60,17 @@ const Absensi = sequelize.define(
     paranoid: true,
     timestamps: true,
     tableName: "absensi",
+    createdAt: "created_at",
+    updatedAt: "updated_at",
   }
 );
 
-Absent.associate = (models) => {
-  Absent.belongsTo(models.User, {
+Absensi.associate = (models) => {
+  Absensi.belongsTo(models.User, {
     foreignKey: "userId",
     as: "user_absensi",
     onDelete: "CASCADE",
   });
 };
 
-module.exports = Absent;
+module.exports = Absensi;

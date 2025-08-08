@@ -1,8 +1,8 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { getAbsenReport } = require('../controllers/absenController');
-const { authenticateToken } = require('../middlewares/authMiddleware');
 
-router.get('/report', authenticateToken, getAbsenReport);
+const { getSuratLembur } = require("../controllers/SuratLembur");
 
-module.exports = router; 
+router.get("/suratlembur", getSuratLembur);
+
+module.exports = router;

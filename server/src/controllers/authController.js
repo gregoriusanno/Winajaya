@@ -6,11 +6,6 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Debug request
-    console.log("=== Login Attempt ===");
-    console.log("Request body:", req.body);
-
-    // Validasi input
     if (!email || !password) {
       console.log("Missing email or password");
       return res.status(400).json({
@@ -18,15 +13,11 @@ const login = async (req, res) => {
         message: "Email dan password harus diisi",
       });
     }
-
-    // Cari user
-    console.log("Searching for user with email:", email);
     const user = await User.findOne({
       where: { email },
-      logging: console.log, // Log query SQL
+      logging: console.log,
     });
 
-    // Debug user result
     console.log("User query result:", {
       found: !!user,
       userData: user
@@ -46,14 +37,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Debug password check
-    console.log("Password comparison:", {
-      inputPassword: password,
-      hashedPassword: user.password,
-      passwordExists: !!user.password,
-    });
-
-    // Verifikasi password
     const isValidPassword = await bcrypt.compare(password, user.password);
     console.log("Password valid:", isValidPassword);
 
@@ -65,7 +48,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Generate token
     const token = jwt.sign(
       {
         id: user.id,

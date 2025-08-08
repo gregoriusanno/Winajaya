@@ -4,11 +4,13 @@ const absensiController = {
   getUser: async (req, res) => {
     try {
       const [user] = await db.query("SELECT * FROM users");
+      console.log(user);
       res.json({
         status: "success",
         data: user,
       });
     } catch (error) {
+      console.error(error);
       res.status(500).json({
         status: "error",
         message: error.message || "Gagal mengambil data karyawan",
@@ -29,10 +31,9 @@ const absensiController = {
       });
     }
   },
-
   getAbsensiTable: async (req, res) => {
     try {
-      const [user] = await db.query(
+      const [table] = await db.query(
         `
         SELECT 
           a.absensiId,
@@ -44,12 +45,16 @@ const absensiController = {
           a.statusLembur
         FROM absensi a
         LEFT JOIN users u ON u.userId = a.userId
-        LEFT JOIN surat_lembur sl ON sl.userId = a.userId;
+        LEFT JOIN surat_lembur sl ON sl.userId = a.userId
+        ORDER BY 
+        a.validasiLembur ASC,
+        a.dateWork = CURDATE() DESC,
+        a.dateWork DESC;
         `
       );
       res.json({
         status: "success",
-        data: user,
+        data: table,
       });
     } catch (error) {
       res.status(500).json({
@@ -58,7 +63,6 @@ const absensiController = {
       });
     }
   },
-
   getUserById: async (req, res) => {
     try {
       const [user] = await db.query("SELECT * FROM karyawan WHERE id = ?", [

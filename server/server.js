@@ -17,7 +17,6 @@ class App {
   constructor() {
     this.app = express();
     this.port = parseInt(process.env.APP_PORT, 10) || 3002;
-
     this.configureMiddleware();
     this.configureRoutes();
     this.connectToDatabase();

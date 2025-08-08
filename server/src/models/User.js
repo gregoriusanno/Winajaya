@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
 const User = sequelize.define(
-  "users",
+  "User", // gunakan nama model PascalCase
   {
     userId: {
       type: DataTypes.INTEGER,
@@ -30,18 +30,12 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    created_at: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    updated_at: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
   },
   {
     tableName: "users",
     timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
   }
 );
 

@@ -1,10 +1,16 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const absensiController = require('../controllers/absensiController');
 
-// Hapus import yang tidak perlu di atas
-// Perbaiki route untuk karyawan
-router.get('/karyawan', absensiController.getKaryawan);
-router.get('/karyawan/:id', absensiController.getKaryawanById);
+const {
+  getAbensi,
+  getAbsensiTable,
+  getUser,
+  getUserById,
+} = require("../controllers/absensiController");
+
+router.get("/getAllAbsensi", getAbensi);
+router.get("/getAbsensiTable", getAbsensiTable);
+router.get("/user", getUser);
+router.get("/user/:id", getUserById);
 
 module.exports = router;

@@ -43,11 +43,11 @@ const SuratLembur = sequelize.define(
   }
 );
 
-Order.associate = (models) => {
-  Order.belongsTo(models.User, {
+SuratLembur.associate = (models) => {
+  SuratLembur.belongsTo(models.User, {
     foreignKey: "userId",
     onDelete: "CASCADE",
   });
 };
 
-module.exports = Order;
+module.exports = SuratLembur;
