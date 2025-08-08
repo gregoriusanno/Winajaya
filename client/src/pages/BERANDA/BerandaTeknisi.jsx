@@ -566,21 +566,7 @@ const BerandaTeknisi = () => {
                 </p>
               </div>
 
-              {/* Button Buka Antrian */}
-              <AnimatedButton
-                onClick={() =>
-                  navigate(`/antrian/${selectedEstimasi}`, {
-                    state: { dateRange, estimasi: selectedEstimasi },
-                  })
-                }
-                variant={
-                  isFromIzin ? "disabled" : isFromPresent ? "blue" : "default"
-                }
-                className="w-full h-[35px] mt-4 py-3 flex items-center justify-center"
-                disabled={isFromIzin}
-              >
-                {isFromIzin ? "Anda sedang izin" : "Buka Antrian"}
-              </AnimatedButton>
+  
             </div>
           </div>
         </div>
