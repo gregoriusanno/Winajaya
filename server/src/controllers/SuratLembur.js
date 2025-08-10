@@ -19,6 +19,31 @@ const SuratLemburController = {
       });
     }
   },
+  insertSuratLembur: async (req, res) => {
+    try {
+      const { userId, dateLembur, reason } = req.body;
+      const [result] = await db.query(
+        `
+          INSERT INTO surat_lembur (userId, dateLembur, reason)
+          VALUES (?, ?, ?)
+        `,
+        [userId, dateLembur, reason]
+      );
+
+      res.json({
+        status: "success",
+        message: "Surat lembur berhasil disimpan",
+        data: {
+          insertId: result.insertId,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: error.message || "Gagal insert surat lembur",
+      });
+    }
+  },
 };
 
 module.exports = SuratLemburController;

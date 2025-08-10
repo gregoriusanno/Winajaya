@@ -162,54 +162,57 @@ const Absensi = () => {
 
   // Handle absensi hadir
   const handleHadir = async () => {
-    console.log("Tombol Saya Hadir diklik");
     setError("");
     setIsLoading(true);
     try {
-      // Ambil data user
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('userData');
+      const token = localStorage.getItem("token");
+      const userData = localStorage.getItem("userData");
       if (!userData) {
-        console.log('userData tidak ditemukan di localStorage');
-        setError('Data user tidak ditemukan. Silakan login ulang.');
+        console.log("userData tidak ditemukan di localStorage");
+        setError("Data user tidak ditemukan. Silakan login ulang.");
         setIsLoading(false);
         return;
       }
       const user = JSON.parse(userData);
-      const employee_id = parseInt(user.id);
+      const employee_id = parseInt(user.userId);
       const branch_id = user.branch_id ? parseInt(user.branch_id) : 1;
       // Ambil waktu sekarang
       const now = new Date();
       const date = now.toISOString().slice(0, 10); // YYYY-MM-DD
       const clock_in = now.toTimeString().slice(0, 8); // HH:mm:ss
       if (!employee_id || isNaN(employee_id)) {
-        console.log('employee_id tidak valid:', employee_id);
-        setError('ID user tidak valid.');
+        console.log("employee_id tidak valid:", employee_id);
+        setError("ID user tidak valid.");
         setIsLoading(false);
         return;
       }
-      console.log('Kirim absen hadir dengan:', { employee_id, branch_id, date, clock_in });
+      console.log("Kirim absen hadir dengan:", {
+        employee_id,
+        branch_id,
+        date,
+        clock_in,
+      });
       // Kirim POST ke absents
-      const res = await fetch('', {
-        method: 'POST',
+      const res = await fetch("", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           employee_id,
           branch_id,
           date,
           clock_in,
-          status: 'Present',
-          description: 'Regular Absent'
-        })
+          status: "Present",
+          description: "Regular Absent",
+        }),
       });
       const data = await res.json();
       if (data.success && data.statusCode === 200) {
         // Sukses absen hadir
         // Set session storage untuk tracking alur login
-        sessionStorage.setItem('fromPresent', 'true');
+        sessionStorage.setItem("fromPresent", "true");
         // Simpan waktu mulai kerja
         localStorage.setItem("workStartTime", new Date().toISOString());
         localStorage.setItem("currentAbsentId", data.data.id);
@@ -227,20 +230,20 @@ const Absensi = () => {
   // Ambil employeeId dari localStorage saat mount
   useEffect(() => {
     try {
-      const userData = localStorage.getItem('userData');
+      const userData = localStorage.getItem("userData");
       if (userData) {
         const user = JSON.parse(userData);
         setEmployeeId(user.id);
-        console.log('employeeId didapat:', user.id);
+        console.log("employeeId didapat:", user.id);
       } else {
-        setError('Data user tidak ditemukan. Silakan login ulang.');
+        setError("Data user tidak ditemukan. Silakan login ulang.");
         setIsAlreadyAbsent(true);
-        console.log('userData tidak ditemukan di localStorage');
+        console.log("userData tidak ditemukan di localStorage");
       }
     } catch (e) {
-      setError('Gagal membaca data user.');
+      setError("Gagal membaca data user.");
       setIsAlreadyAbsent(true);
-      console.log('Error parsing userData:', e);
+      console.log("Error parsing userData:", e);
     }
   }, []);
 
@@ -288,7 +291,7 @@ const Absensi = () => {
       return;
     }
     if (!employeeId) {
-      setError('Data user tidak ditemukan. Silakan login ulang.');
+      setError("Data user tidak ditemukan. Silakan login ulang.");
       return;
     }
     setIsLoading(true);
@@ -306,20 +309,20 @@ const Absensi = () => {
     else if (kategoriIzin === "keperluan_pribadi") status = "Keperluan Pribadi";
 
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('https://api.katsikat.id/permissions', {
-        method: 'POST',
+      const token = localStorage.getItem("token");
+      const res = await fetch("", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           status,
           date,
           description: alasanIzin,
           clock_in,
-          employee_id: employeeId
-        })
+          employee_id: employeeId,
+        }),
       });
       const data = await res.json();
       if (data.success && data.statusCode === 200) {
@@ -363,7 +366,7 @@ const Absensi = () => {
           Konfirmasi kehadiran!
         </h1>
         <p className="font-montserrat text-sm text-gray-800 tracking-wide text-center mb-3">
-        Pastikan Anda berada dalam radius 10 meter dari outlet!
+          Pastikan Anda berada dalam radius 10 meter dari outlet!
         </p>
 
         {/* Buttons */}
@@ -377,7 +380,10 @@ const Absensi = () => {
             Izin/Ambil hari libur
           </AnimatedButton>
           <AnimatedButton
-            onClick={() => { console.log('onClick AnimatedButton'); handleHadir(); }}
+            onClick={() => {
+              console.log("onClick AnimatedButton");
+              handleHadir();
+            }}
             className="font-semibold w-full py-3 px-4 rounded-xl text-sm"
             variant="blue"
             disabled={isAlreadyAbsent || isLoading}
@@ -401,7 +407,7 @@ const Absensi = () => {
                 }`}
             >
               <h2 className="font-bebas text-2xl mb-4 text-center">
-              ALASAN CUTI / LIBUR
+                ALASAN CUTI / LIBUR
               </h2>
 
               <div className="flex items-center gap-2 mb-4">
@@ -425,9 +431,6 @@ const Absensi = () => {
                   <textarea
                     value={alasanIzin}
                     onChange={(e) => setAlasanIzin(e.target.value)}
-                    // jka kategori izin adalah libur bersama, maka placeholder menjadi "Berikan alasan libur bersama..."
-                    // jka kategori izin adalah sakit, maka placeholder menjadi "Berikan alasan sakit..." atau "Berikan alasan sakit..."
-                    // jka kategori izin adalah keperluan pribadi, maka placeholder menjadi "Berikan alasan keperluan pribadi..."
                     placeholder={
                       kategoriIzin === "libur_bersama"
                         ? "Jelaskan kegiatan libur bersama..."

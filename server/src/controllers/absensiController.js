@@ -86,6 +86,45 @@ const absensiController = {
       });
     }
   },
+  insertAbensi: async (req, res) => {
+    const {
+      userId,
+      clockIn,
+      clockOut,
+      duration,
+      dateWork,
+      salaryDay,
+      statusLembur,
+      validasiLembur,
+    } = req.body;
+
+    try {
+      const [user] = await db.query(
+        `
+        INSERT INTO absensi (userId, clockIn, clockOut, duration, dateWork, salaryDay, statusLembur, validasiLembur)
+        VALUES ?,?,?,?,?,?,?,?
+        `
+      )[
+        (userId,
+        clockIn,
+        clockOut,
+        duration,
+        dateWork,
+        salaryDay,
+        statusLembur,
+        validasiLembur)
+      ];
+      res.json({
+        status: "success",
+        data: user,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: error.message || "Gagal mengambil data absensi",
+      });
+    }
+  },
 };
 
 module.exports = absensiController;

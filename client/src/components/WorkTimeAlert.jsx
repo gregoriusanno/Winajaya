@@ -42,7 +42,6 @@ const WorkTimeAlert = () => {
     }
   };
 
-  // Fungsi untuk menangani klik tombol ambil lembur
   const handleTakeOvertime = () => {
     setShowOvertimeWarning(false);
     setTimeout(() => {
@@ -68,7 +67,12 @@ const WorkTimeAlert = () => {
               src="https://cdn.lordicon.com/zjuyeglr.json"
               trigger="loop"
               state="loop-oscillate"
-              style={{ width: "25px", height: "25px", marginLeft: "5px", paddingTop: "3px"}}
+              style={{
+                width: "25px",
+                height: "25px",
+                marginLeft: "5px",
+                paddingTop: "3px",
+              }}
             />
           </h2>
           <p className="text-red-600 text-sm">
