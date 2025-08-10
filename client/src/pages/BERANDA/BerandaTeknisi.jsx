@@ -16,6 +16,8 @@ import Header from "../../components/Com Header/Header";
 import WorkTimeAlert from "../../components/WorkTimeAlert";
 import BreakTimeAlert from "../../components/BreakTimeAlert";
 import AnimatedButton from "../../components/Design/AnimatedButton";
+import workImage from "../../assets/images/work.png";
+
 
 // Konfigurasi axios interceptor
 axios.interceptors.request.use(
@@ -197,40 +199,40 @@ const BerandaTeknisi = () => {
   // Update fetchAntrianData untuk menggunakan axios dengan interceptor
   const fetchAntrianData = async (range = dateRange) => {
     try {
-      const params = {
-        search: "",
-        startDate: formatDateForDB(range.startDate),
-        endDate: formatDateForDB(range.endDate),
-        pageSize: 1000, // Ambil semua data untuk perhitungan
-        page: 1, // Halaman pertama
-      };
+      // const params = {
+      //   search: "",
+      //   startDate: formatDateForDB(range.startDate),
+      //   endDate: formatDateForDB(range.endDate),
+      //   pageSize: 1000, // Ambil semua data untuk perhitungan
+      //   page: 1, // Halaman pertama
+      // };
 
-      const response = await axios.get(`https://api.katsikat.id/orders`, {
-        params,
-      });
+      // const response = await axios.get(`https://api.katsikat.id/orders`, {
+      //   params,
+      // });
 
-      // Log untuk debugging
-      console.log("Token:", localStorage.getItem("token"));
-      console.log("Request Headers:", response.config.headers);
-      console.log("Response:", response.data);
+      // // Log untuk debugging
+      // console.log("Token:", localStorage.getItem("token"));
+      // console.log("Request Headers:", response.config.headers);
+      // console.log("Response:", response.data);
 
-      if (response.data && response.data.data && response.data.data.orders) {
-        // Ensure response.data.data.orders is always an array
-        const rawOrders = response.data.data.orders;
-        const ordersArray = Array.isArray(rawOrders) ? rawOrders : [];
+      // if (response.data && response.data.data && response.data.data.orders) {
+      //   // Ensure response.data.data.orders is always an array
+      //   const rawOrders = response.data.data.orders;
+      //   const ordersArray = Array.isArray(rawOrders) ? rawOrders : [];
 
-        setAntrianData({
-          total: ordersArray.length,
-        });
-        setFetchedOrders(ordersArray); // Set raw fetched orders here
-      } else {
-        setFetchedOrders([]); // Clear fetchedOrders
-        setAntrianTreatment([]);
-        setCountRegular(0);
-        setCountSameDay(0);
-        setCountNextDay(0);
-        setAntrianData({ total: 0 });
-      }
+      //   setAntrianData({
+      //     total: ordersArray.length,
+      //   });
+      //   setFetchedOrders(ordersArray); // Set raw fetched orders here
+      // } else {
+      //   setFetchedOrders([]); // Clear fetchedOrders
+      //   setAntrianTreatment([]);
+      //   setCountRegular(0);
+      //   setCountSameDay(0);
+      //   setCountNextDay(0);
+      //   setAntrianData({ total: 0 });
+      // }
     } catch (error) {
       console.error("Error fetching orders:", error);
       if (error.response?.status === 401) {
@@ -331,11 +333,6 @@ const BerandaTeknisi = () => {
     console.log("Current antrianData:", antrianData);
   }, [antrianData]);
 
-  // Ubah fungsi filterTreatment
-  const filterTreatment = async (estimasi) => {
-    setSelectedEstimasi(estimasi);
-    // fetchAntrianData will be triggered by useEffect due to selectedEstimasi change
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -383,50 +380,6 @@ const BerandaTeknisi = () => {
     setCurrentTime(timeString);
   };
 
-  // Tambahkan useEffect untuk update waktu setiap detik
-  useEffect(() => {
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Tambahkan fungsi untuk handle quick date selection
-  const handleQuickDateSelect = (type) => {
-    const today = new Date();
-    let newStartDate, newEndDate;
-
-    switch (type) {
-      case "today":
-        newStartDate = new Date(today);
-        newEndDate = new Date(today);
-        break;
-      case "yesterday":
-        newStartDate = new Date(today);
-        newStartDate.setDate(today.getDate() - 1);
-        newEndDate = new Date(newStartDate);
-        break;
-      case "tomorrow":
-        newStartDate = new Date(today);
-        newStartDate.setDate(today.getDate() + 1);
-        newEndDate = new Date(newStartDate);
-        break;
-      default:
-        return;
-    }
-
-    const formattedStartDate = formatDateForDB(newStartDate);
-    const formattedEndDate = formatDateForDB(newEndDate);
-
-    const newRange = {
-      startDate: formattedStartDate,
-      endDate: formattedEndDate,
-    };
-
-    setDateRange(newRange);
-    localStorage.setItem("dateRange", JSON.stringify(newRange));
-    fetchAntrianData(newRange);
-  };
-
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-white font-montserrat">
       <Header />
@@ -437,134 +390,22 @@ const BerandaTeknisi = () => {
           <div className="max-w-[390px] md:max-w-none mx-auto mt-[50px]">
             <WorkTimeAlert />
 
-
-            {/* Date Range Picker */}
-            <div className="mb-2 bg-white rounded-3xl p-4 mt-4 opacity-100 outline outline-2 outline-[#EEF1F7]">
-              <h2 className="text-2xl font-bebas mb-3">Rentang Waktu</h2>
-
-              {/* Quick Date Selection Buttons */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                <AnimatedButton
-                  onClick={() => handleQuickDateSelect("yesterday")}
-                  className="h-[35px] rounded-xl flex items-center justify-center text-sm font-semibold bg-[#E6EFF9] text-[#2E7CF6] hover:bg-[#65B7FF] hover:text-white transition-all"
-                >
-                  Kemarin
-                </AnimatedButton>
-                <AnimatedButton
-                  onClick={() => handleQuickDateSelect("today")}
-                  className="h-[35px] rounded-xl flex items-center justify-center text-sm font-semibold bg-[#E6EFF9] text-[#2E7CF6] hover:bg-[#65B7FF] hover:text-white transition-all"
-                >
-                  Hari Ini
-                </AnimatedButton>
-                <AnimatedButton
-                  onClick={() => handleQuickDateSelect("tomorrow")}
-                  className="h-[35px] rounded-xl flex items-center justify-center text-sm font-semibold bg-[#E6EFF9] text-[#2E7CF6] hover:bg-[#65B7FF] hover:text-white transition-all"
-                >
-                  Besok
-                </AnimatedButton>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 font-montserrat">
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">
-                    Dari Tanggal
-                  </label>
-                  <input
-                    type="date"
-                    name="startDate"
-                    value={dateRange.startDate}
-                    onChange={handleDateInputChange}
-                    max={dateRange.endDate}
-                    className="bg-[#E6EFF9] text-gray-600 shadow shadow-white opacity-100 outline outline-1 outline-white w-full p-2 rounded-xl font-semibold"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">
-                    Sampai Tanggal
-                  </label>
-                  <input
-                    type="date"
-                    name="endDate"
-                    value={dateRange.endDate}
-                    onChange={handleDateInputChange}
-                    min={dateRange.startDate}
-                    className="bg-[#E6EFF9] text-gray-600 shadow shadow-white opacity-100 outline outline-1 outline-white w-full p-2 rounded-xl font-semibold"
-                  />
-                </div>
-              </div>
-            </div>
-
             {/* Detail Antrian Card dengan Button Buka Antrian */}
             <div className="mb-2 bg-white rounded-3xl p-4 mt-4 opacity-100 outline outline-2 outline-[#EEF1F7]">
               <h2 className="text-2xl font-bebas mb-2">
-                Detail Antrian Treatment
+                Anda Sedang Dalam Jam Kerja!
               </h2>
 
-              <div className="grid grid-cols-3 gap-2 font-['Montserrat']">
-                <AnimatedButton
-                  className={`${
-                    selectedEstimasi === "regular"
-                      ? "bg-[#65B7FF] text-white"
-                      : "bg-[#E6EFF9] text-[#909FB1]"
-                  } p-4 rounded-2xl cursor-pointer hover:bg-opacity-90 transition-all`}
-                  onClick={() => setSelectedEstimasi("regular")}
-                >
-                  <h3
-                    className={
-                      selectedEstimasi === "regular"
-                        ? "text-white"
-                        : "text-[#909FB1]"
-                    }
-                  >
-                    Regular
-                  </h3>
-                  <p className="text-3xl font-bold">{countRegular}</p>
-                </AnimatedButton>
-                <AnimatedButton
-                  className={`${
-                    selectedEstimasi === "sameDay"
-                      ? "bg-[#65B7FF] text-white"
-                      : "bg-[#E6EFF9] text-[#909FB1]"
-                  } p-4 rounded-2xl cursor-pointer hover:bg-opacity-90 transition-all`}
-                  onClick={() => setSelectedEstimasi("sameDay")}
-                >
-                  <h3
-                    className={
-                      selectedEstimasi === "sameDay"
-                        ? "text-white"
-                        : "text-[#909FB1]"
-                    }
-                  >
-                    Same Day
-                  </h3>
-                  <p className="text-3xl font-bold">{countSameDay}</p>
-                </AnimatedButton>
-                <AnimatedButton
-                  className={`${
-                    selectedEstimasi === "nextDay"
-                      ? "bg-[#65B7FF] text-white"
-                      : "bg-[#E6EFF9] text-[#909FB1]"
-                  } p-4 rounded-2xl cursor-pointer hover:bg-opacity-90 transition-all`}
-                  onClick={() => setSelectedEstimasi("nextDay")}
-                >
-                  <h3
-                    className={
-                      selectedEstimasi === "nextDay"
-                        ? "text-white"
-                        : "text-[#909FB1]"
-                    }
-                  >
-                    Next Day
-                  </h3>
-                  <p className="text-3xl font-bold">{countNextDay}</p>
-                </AnimatedButton>
+              <div className="flex justify-center mb-6">
+                <img src={workImage} alt="Work" className="w-32 h-32" />
               </div>
-              {/* Total Antrian ala kasir/kurir */}
-              <div className="mt-4 text-center outline outline-2 outline-[#EEF1F7] rounded-3xl p-2 mb-4">
-                <p className="text-sm text-gray-600">
-                  Total Antrian: {countRegular + countSameDay + countNextDay}
-                </p>
-              </div>
+
+              <AnimatedButton
+                type="submit"
+                className="w-full h-[40px] py-3 sm:py-3.5 px-4 mt-2 bg-gradient-to-r from-[#ffe2e5] to-[#ff5568] text-white rounded-xl opacity-100 font-montserrat font-semibold flex items-center justify-center text-sm"
+                >
+                KELUAR/LOGOUT
+              </AnimatedButton>
 
   
             </div>
@@ -580,13 +421,6 @@ const BerandaTeknisi = () => {
         message="Are you sure you want to logout? Logging out is recommended when work hours are finished."
       />
 
-      <ConfirmationModal
-        isOpen={showSwitchRoleModal}
-        onClose={() => setShowSwitchRoleModal(false)}
-        onConfirm={handleSwitchRoleConfirm}
-        title="Switch Role Confirmation"
-        message="Are you sure you want to switch to courier page?"
-      />
     </div>
   );
 };
