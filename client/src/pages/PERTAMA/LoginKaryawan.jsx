@@ -23,7 +23,7 @@ const LoginKaryawan = () => {
     setError("");
 
     try {
-      const loginUrl = "";
+      const loginUrl = "http://localhost:3002/api/auth/login";
       console.log("Attempting login to:", loginUrl);
       console.log("Login payload:", {
         email: formData.email,
@@ -43,67 +43,27 @@ const LoginKaryawan = () => {
           },
         }
       );
+      const res = await fetch(
+        `http://localhost:3002/api/absensi/user/${employeeId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data?.token && res) {
+        localStorage.setItem("token", response.data.token);
 
-      console.log("Response login:", response.data);
+        const userData = { ...response.data.user };
+        console.log("USER", response.data.user);
 
-      if (response.data?.data?.token) {
-        localStorage.setItem("token", response.data.data.token);
-
-        const userData = { ...response.data.data.userCheck };
         localStorage.setItem("userData", JSON.stringify(userData));
         console.log("userData berhasil disimpan ke localStorage:", userData);
-
-        // --- Tambahan: Cek status absen/izin ---
-        try {
-          const token = response.data.data.token;
-          const employeeId = userData.id;
-          const checkRes = await axios.get(``, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          const checkData = checkRes.data;
-          if (
-            checkData.data &&
-            checkData.statusCode === 200 &&
-            checkData.data.isTodayAbsent
-          ) {
-            // Sudah absen/izin hari ini
-            // Cek status absen/izin
-            const status = checkData.data.absentData?.status;
-            const absentId = checkData.data.absentData?.id;
-            if (absentId) {
-              localStorage.setItem("currentAbsentId", absentId);
-            }
-            if (status === "Present" || status === "Hadir") {
-              sessionStorage.setItem("fromPresent", "true");
-              localStorage.setItem("workStartTime", new Date().toISOString());
-              navigate("/loginSuccess");
-              return;
-            } else if (
-              status === "Libur Bersama" ||
-              status === "Sick" ||
-              status === "Keperluan Pribadi"
-            ) {
-              navigate("/izin-success");
-              return;
-            } else {
-              // Jika status tidak dikenali, fallback ke absensi
-              navigate("/absensi");
-              return;
-            }
-          } else {
-            // Belum absen/izin
-            navigate("/absensi");
-            return;
-          }
-        } catch (err) {
-          // Jika gagal cek status, fallback ke absensi
-          console.error("Gagal cek status absen:", err);
+        if (res.role == "ADMIN") {
+          navigate("/Dasboard");
+        } else {
           navigate("/absensi");
-          return;
         }
-        // --- End tambahan ---
       } else {
         setError("Token tidak ditemukan dalam response");
         console.error("Response structure:", response.data);

@@ -73,33 +73,52 @@ const Absensi = () => {
   //   lat: -6.9401128, // Latitude outlet Katsikat
   //   lng: 106.9447146, // Longitude outlet Katsikat
   // };
-  
-  const OUTLET_LOCATION = {
-    lat: -7.9888889, // Latitude outlet Katsikat
-    lng: 112.6838822, // Longitude outlet Katsikat
-  };
 
-  const ALLOWED_RADIUS = 10; // Radius dalam meter
+  const OUTLET_LOCATION = [
+    {
+      lat: -7.938437571671683,
+      lng: 112.63410338419457,
+    },
+    {
+      lat: -6.796001,
+      lng: 111.896492,
+    },
+    {
+      lat: -6.797187209031785,
+      lng: 111.87774215825094,
+    },
+  ];
+
+  const ALLOWED_RADIUS = 1500; // Radius dalam meter
 
   // Fungsi untuk menghitung jarak antara dua koordinat (dalam meter)
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371e3; // Radius bumi dalam meter
-    const φ1 = (lat1 * Math.PI) / 180;
-    const φ2 = (lat2 * Math.PI) / 180;
-    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+    const R = 6371000; // radius bumi dalam meter
+    const toRad = (deg) => deg * (Math.PI / 180);
+
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
 
     const a =
-      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    return R * c; // Jarak dalam meter
+    return R * c; // jarak dalam meter
   };
 
   // Fungsi untuk mengecek lokasi user
   const checkLocation = () => {
-    if ("geolocation" in navigator) {
+    return new Promise((resolve, reject) => {
+      if (!("geolocation" in navigator)) {
+        reject("Browser Anda tidak mendukung geolocation.");
+        return;
+      }
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const userLat = position.coords.latitude;
@@ -109,35 +128,35 @@ const Absensi = () => {
 
           setUserLocation({ lat: userLat, lng: userLng });
 
-          // Hitung jarak ke outlet
-          const distance = calculateDistance(
-            userLat,
-            userLng,
-            OUTLET_LOCATION.lat,
-            OUTLET_LOCATION.lng
-          );
+          // Cek jarak ke semua outlet
+          const isWithinRadius = OUTLET_LOCATION.some((outlet) => {
+            const distance = calculateDistance(
+              userLat,
+              userLng,
+              outlet.lat,
+              outlet.lng
+            );
+            console.log(
+              `Jarak ke outlet (${outlet.lat}, ${outlet.lng}): ${distance} meter`
+            );
+            return distance <= ALLOWED_RADIUS;
+          });
 
-          console.log("Jarak ke outlet:", distance, "meter");
-
-          if (distance <= ALLOWED_RADIUS) {
-            // User dalam radius yang diizinkan
-            navigate("/loginSuccess");
+          if (isWithinRadius) {
+            resolve(true);
           } else {
-            setError(
-              "Anda harus berada dalam radius 10 meter dari outlet untuk melakukan absensi!"
+            reject(
+              `Anda harus berada dalam radius ${ALLOWED_RADIUS} meter dari salah satu outlet untuk melakukan absensi!`
             );
           }
         },
         (error) => {
-          console.error("Error getting location:", error);
-          setError(
+          reject(
             "Gagal mendapatkan lokasi. Pastikan GPS aktif dan izin lokasi diberikan."
           );
         }
       );
-    } else {
-      setError("Browser Anda tidak mendukung geolocation.");
-    }
+    });
   };
 
   // Handle absensi hadir
@@ -147,52 +166,69 @@ const Absensi = () => {
     setIsLoading(true);
     try {
       // Ambil data user
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('userData');
+      const token = localStorage.getItem("token");
+      const userData = localStorage.getItem("userData");
+      const locationValid = await checkLocation();
+      if (!locationValid) {
+        setError("Lokasi di luar radius, absen tidak bisa dilakukan.");
+        setIsLoading(false);
+        return;
+      }
       if (!userData) {
-        console.log('userData tidak ditemukan di localStorage');
-        setError('Data user tidak ditemukan. Silakan login ulang.');
+        console.log("userData tidak ditemukan di localStorage");
+        setError("Data user tidak ditemukan. Silakan login ulang.");
         setIsLoading(false);
         return;
       }
       const user = JSON.parse(userData);
-      const employee_id = parseInt(user.id);
-      const branch_id = user.branch_id ? parseInt(user.branch_id) : 1;
+      const employee_id = parseInt(user.userId);
       // Ambil waktu sekarang
       const now = new Date();
       const date = now.toISOString().slice(0, 10); // YYYY-MM-DD
-      const clock_in = now.toTimeString().slice(0, 8); // HH:mm:ss
+      const clock_in = now.toTimeString().slice(0, 8);
       if (!employee_id || isNaN(employee_id)) {
-        console.log('employee_id tidak valid:', employee_id);
-        setError('ID user tidak valid.');
+        console.log("employee_id tidak valid:", employee_id);
+        setError("ID user tidak valid.");
         setIsLoading(false);
         return;
       }
-      console.log('Kirim absen hadir dengan:', { employee_id, branch_id, date, clock_in });
-      // Kirim POST ke absents
-      const res = await fetch('', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          employee_id,
-          branch_id,
-          date,
-          clock_in,
-          status: 'Present',
-          description: 'Regular Absent'
-        })
+      console.log("Kirim absen hadir dengan:", {
+        employee_id,
+        date,
+        clock_in,
       });
+      // Kirim POST ke absents
+      const res = await fetch(
+        "http://localhost:3002/api/absensi/insertAbsensi",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userId: employee_id,
+            clockIn: clock_in,
+            clockOut: null,
+            duration: null,
+            dateWork: date,
+            salaryDay: null,
+            statusLembur: null,
+            validasiLembur: null,
+          }),
+        }
+      );
+
       const data = await res.json();
-      if (data.success && data.statusCode === 200) {
+
+      if (data.status === "success") {
         // Sukses absen hadir
         // Set session storage untuk tracking alur login
-        sessionStorage.setItem('fromPresent', 'true');
+        sessionStorage.setItem("fromPresent", "true");
         // Simpan waktu mulai kerja
         localStorage.setItem("workStartTime", new Date().toISOString());
-        localStorage.setItem("currentAbsentId", data.data.id);
+        localStorage.setItem("currentAbsentId", data.data.userId);
+        console.log(localStorage);
         navigate("/loginSuccess");
       } else {
         setError("Gagal menyimpan data kehadiran.");
@@ -207,39 +243,42 @@ const Absensi = () => {
   // Ambil employeeId dari localStorage saat mount
   useEffect(() => {
     try {
-      const userData = localStorage.getItem('userData');
+      const userData = localStorage.getItem("userData");
       if (userData) {
         const user = JSON.parse(userData);
-        setEmployeeId(user.id);
-        console.log('employeeId didapat:', user.id);
+        setEmployeeId(user.userId);
+        console.log("UserId didapat:", user.userId);
       } else {
-        setError('Data user tidak ditemukan. Silakan login ulang.');
+        setError("Data user tidak ditemukan. Silakan login ulang.");
         setIsAlreadyAbsent(true);
-        console.log('userData tidak ditemukan di localStorage');
+        console.log("userData tidak ditemukan di localStorage");
       }
     } catch (e) {
-      setError('Gagal membaca data user.');
+      setError("Gagal membaca data user.");
       setIsAlreadyAbsent(true);
-      console.log('Error parsing userData:', e);
+      console.log("Error parsing userData:", e);
     }
   }, []);
 
   // Cek absen hanya jika employeeId sudah ada
-  /*
+
   useEffect(() => {
-    console.log('useEffect cek absen jalan, employeeId:', employeeId);
+    console.log("useEffect cek absen jalan, employeeId:", employeeId);
     if (!employeeId) return;
     const checkAbsen = async () => {
       setIsLoading(true);
       try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`https://api.katsikat.id/check-today?employee_id=${employeeId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          `https://api.katsikat.id/check-today?employee_id=${employeeId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
+        );
         const data = await res.json();
-        console.log('Hasil API check-today:', data);
+        console.log("Hasil API check-today:", data);
         if (data.data && data.data.isTodayAbsent) {
           setError("Anda sudah absen hari ini.");
           setIsAlreadyAbsent(true);
@@ -248,14 +287,13 @@ const Absensi = () => {
         }
       } catch (err) {
         setError("Gagal cek status absen.");
-        console.log('Error fetch check-today:', err);
+        console.log("Error fetch check-today:", err);
       } finally {
         setIsLoading(false);
       }
     };
     checkAbsen();
   }, [employeeId]);
-  */
 
   // Handle submit izin
   const handleSubmitIzin = async () => {
@@ -268,7 +306,7 @@ const Absensi = () => {
       return;
     }
     if (!employeeId) {
-      setError('Data user tidak ditemukan. Silakan login ulang.');
+      setError("Data user tidak ditemukan. Silakan login ulang.");
       return;
     }
     setIsLoading(true);
@@ -286,20 +324,20 @@ const Absensi = () => {
     else if (kategoriIzin === "keperluan_pribadi") status = "Keperluan Pribadi";
 
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('https://api.katsikat.id/permissions', {
-        method: 'POST',
+      const token = localStorage.getItem("token");
+      const res = await fetch("https://api.katsikat.id/permissions", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           status,
           date,
           description: alasanIzin,
           clock_in,
-          employee_id: employeeId
-        })
+          employee_id: employeeId,
+        }),
       });
       const data = await res.json();
       if (data.success && data.statusCode === 200) {
@@ -343,7 +381,7 @@ const Absensi = () => {
           Konfirmasi kehadiran!
         </h1>
         <p className="font-montserrat text-sm text-gray-800 tracking-wide text-center mb-3">
-        Pastikan Anda berada dalam radius 10 meter dari outlet!
+          Pastikan Anda berada dalam radius 10 meter dari outlet!
         </p>
 
         {/* Buttons */}
@@ -354,10 +392,13 @@ const Absensi = () => {
             variant="grey"
             disabled={isAlreadyAbsent || isLoading}
           >
-          Form Lembur
+            Form Lembur
           </AnimatedButton>
           <AnimatedButton
-            onClick={() => { console.log('onClick AnimatedButton'); handleHadir(); }}
+            onClick={() => {
+              console.log("onClick AnimatedButton");
+              handleHadir();
+            }}
             className="font-semibold w-full py-3 px-4 rounded-xl text-sm"
             variant="red"
             disabled={isAlreadyAbsent || isLoading}
@@ -381,7 +422,7 @@ const Absensi = () => {
                 }`}
             >
               <h2 className="font-bebas text-2xl mb-4 text-center">
-              ALASAN LEMBUR
+                ALASAN LEMBUR
               </h2>
 
               <div className="flex items-center gap-2 mb-4">

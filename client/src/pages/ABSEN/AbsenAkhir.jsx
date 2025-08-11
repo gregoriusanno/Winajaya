@@ -15,35 +15,34 @@ const AbsenAkhir = () => {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    // Ambil waktu mulai kerja dari localStorage
     const startTime = localStorage.getItem("workStartTime");
 
-    if (startTime) {
-      const start = new Date(startTime);
-      const end = new Date();
+    if (!startTime) {
+      console.log("Tidak ada waktu mulai kerja yang tersimpan");
+      return;
+    }
 
-      // Hitung durasi dalam milidetik
+    const start = new Date(startTime);
+
+    const updateDuration = () => {
+      const end = new Date();
       const duration = end - start;
 
-      // Konversi ke jam, menit, dan detik
       const hours = Math.floor(duration / (1000 * 60 * 60));
       const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((duration % (1000 * 60)) / 1000);
 
-      // Tambahkan console log
-      console.log("Perhitungan durasi kerja:", {
-        waktuMulai: start.toLocaleString(),
-        waktuSelesai: end.toLocaleString(),
-        durasiMilidetik: duration,
-        jam: hours,
-        menit: minutes,
-        detik: seconds,
-      });
-
       setWorkDuration({ hours, minutes, seconds });
-    } else {
-      console.log("Tidak ada waktu mulai kerja yang tersimpan");
-    }
+    };
+
+    // Update pertama kali saat komponen mount
+    updateDuration();
+
+    // Update setiap detik
+    const timer = setInterval(updateDuration, 1000);
+
+    // Bersihkan interval saat komponen unmount
+    return () => clearInterval(timer);
   }, []);
 
   // Effect untuk setup kamera

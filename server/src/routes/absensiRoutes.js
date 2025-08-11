@@ -13,6 +13,6 @@ router.get("/getAllAbsensi", getAbensi);
 router.get("/getAbsensiTable", getAbsensiTable);
 router.get("/user", getUser);
 router.get("/user/:id", getUserById);
-router.get("/insertAbensi", insertAbensi);
+router.post("/insertAbsensi", insertAbensi);
 
 module.exports = router;

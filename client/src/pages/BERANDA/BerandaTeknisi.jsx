@@ -205,7 +205,7 @@ const BerandaTeknisi = () => {
         page: 1, // Halaman pertama
       };
 
-      const response = await axios.get(`https://api.katsikat.id/orders`, {
+      const response = await axios.get(``, {
         params,
       });
 
@@ -214,23 +214,23 @@ const BerandaTeknisi = () => {
       console.log("Request Headers:", response.config.headers);
       console.log("Response:", response.data);
 
-      if (response.data && response.data.data && response.data.data.orders) {
-        // Ensure response.data.data.orders is always an array
-        const rawOrders = response.data.data.orders;
-        const ordersArray = Array.isArray(rawOrders) ? rawOrders : [];
+      // if (response.data && response.data) {
+      //   // Ensure response.data.data.orders is always an array
+      //   const rawOrders = response.data.data.orders;
+      //   const ordersArray = Array.isArray(rawOrders) ? rawOrders : [];
 
-        setAntrianData({
-          total: ordersArray.length,
-        });
-        setFetchedOrders(ordersArray); // Set raw fetched orders here
-      } else {
-        setFetchedOrders([]); // Clear fetchedOrders
-        setAntrianTreatment([]);
-        setCountRegular(0);
-        setCountSameDay(0);
-        setCountNextDay(0);
-        setAntrianData({ total: 0 });
-      }
+      //   setAntrianData({
+      //     total: ordersArray.length,
+      //   });
+      //   setFetchedOrders(ordersArray); // Set raw fetched orders here
+      // } else {
+      //   setFetchedOrders([]); // Clear fetchedOrders
+      //   setAntrianTreatment([]);
+      //   setCountRegular(0);
+      //   setCountSameDay(0);
+      //   setCountNextDay(0);
+      //   setAntrianData({ total: 0 });
+      // }
     } catch (error) {
       console.error("Error fetching orders:", error);
       if (error.response?.status === 401) {
@@ -437,7 +437,6 @@ const BerandaTeknisi = () => {
           <div className="max-w-[390px] md:max-w-none mx-auto mt-[50px]">
             <WorkTimeAlert />
 
-
             {/* Date Range Picker */}
             <div className="mb-2 bg-white rounded-3xl p-4 mt-4 opacity-100 outline outline-2 outline-[#EEF1F7]">
               <h2 className="text-2xl font-bebas mb-3">Rentang Waktu</h2>
@@ -565,8 +564,6 @@ const BerandaTeknisi = () => {
                   Total Antrian: {countRegular + countSameDay + countNextDay}
                 </p>
               </div>
-
-  
             </div>
           </div>
         </div>

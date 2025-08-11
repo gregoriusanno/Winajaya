@@ -37,7 +37,6 @@ const login = async (req, res) => {
         message: "Email atau password salah",
       });
     }
-
     const isValidPassword = await bcrypt.compare(password, user.password);
     console.log("Password valid:", isValidPassword);
 
@@ -85,6 +84,7 @@ const login = async (req, res) => {
     });
   }
 };
+
 const logout = async (req, res) => {
   try {
     const { email, password } = req.body;

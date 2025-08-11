@@ -65,9 +65,8 @@ const absensiController = {
   },
   getUserById: async (req, res) => {
     try {
-      const [user] = await db.query("SELECT * FROM karyawan WHERE id = ?", [
-        req.params.id,
-      ]);
+      const id = db.escape(req.params.id);
+      const [user] = await db.query(`SELECT * FROM users WHERE userId = ${id}`);
 
       if (user.length === 0) {
         return res.status(404).json({
@@ -97,31 +96,34 @@ const absensiController = {
       statusLembur,
       validasiLembur,
     } = req.body;
-
     try {
-      const [user] = await db.query(
-        `
-        INSERT INTO absensi (userId, clockIn, clockOut, duration, dateWork, salaryDay, statusLembur, validasiLembur)
-        VALUES ?,?,?,?,?,?,?,?
-        `
-      )[
-        (userId,
-        clockIn,
-        clockOut,
-        duration,
-        dateWork,
-        salaryDay,
-        statusLembur,
-        validasiLembur)
-      ];
+      const [result] = await db.query(
+        `INSERT INTO absensi 
+          (userId, clockIn, clockOut, duration, dateWork, salaryDay, statusLembur, validasiLembur)
+        VALUES (:userId, :clockIn, :clockOut, :duration, :dateWork, :salaryDay, :statusLembur, :validasiLembur)`,
+        {
+          replacements: {
+            userId: userId || null,
+            clockIn: clockIn || null,
+            clockOut: clockOut || null,
+            duration: duration || null,
+            dateWork: dateWork || null,
+            salaryDay: salaryDay || null,
+            statusLembur: statusLembur || null,
+            validasiLembur: validasiLembur || null,
+          },
+          type: db.QueryTypes.INSERT,
+        }
+      );
       res.json({
         status: "success",
-        data: user,
+        data: result,
       });
     } catch (error) {
+      console.error(error); // biar kelihatan error detail di console
       res.status(500).json({
         status: "error",
-        message: error.message || "Gagal mengambil data absensi",
+        message: error.message || "Gagal menyimpan data absensi",
       });
     }
   },
