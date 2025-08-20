@@ -21,7 +21,7 @@ const absensiController = {
     try {
       const id = db.escape(req.params.id);
       const [user] = await db.query(
-        `SELECT * FROM absensi WHERE userId = ${id}`
+        `SELECT * FROM absensi WHERE userId = ${id} ORDER BY dateWork DESC`
       );
       res.json({
         status: "success",

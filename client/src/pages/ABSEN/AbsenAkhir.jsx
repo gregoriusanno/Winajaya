@@ -55,7 +55,9 @@ const AbsenAkhir = () => {
     //   return;
     // }
 
-    const currentAbsentId = localStorage.getItem("userData");
+    const currentAbsentId = JSON.parse(
+      localStorage.getItem("userData") || "{}"
+    );
     const token = localStorage.getItem("token");
 
     console.log("Debug Absen Pulang: Token =", token);
@@ -87,7 +89,7 @@ const AbsenAkhir = () => {
     let statusLembur;
 
     if (hours > 8 || (hours === 8 && (minutes > 0 || seconds > 0))) {
-      const day = now.getDay(); // 0 = Minggu, 6 = Sabtu
+      const day = now.getDay();
 
       // Daftar hari libur
       const holidays = ["2025-08-17", "2025-08-20"];
@@ -109,7 +111,6 @@ const AbsenAkhir = () => {
 
     try {
       const { userId } = currentAbsentId;
-      console.log(userId);
       const resAbsensi = await fetch(
         `http://localhost:3002/api/absensi/getAbsensibyId/${userId}`,
         {
@@ -120,6 +121,7 @@ const AbsenAkhir = () => {
           },
         }
       );
+      const dataAbsensi = await resAbsensi.json();
       const res = await fetch(
         "http://localhost:3002/api/absensi/updateAbsensi",
         {
@@ -129,23 +131,23 @@ const AbsenAkhir = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            userId: currentAbsentId.userId,
+            userId: userId,
             clockIn: null,
             clockOut: clock_out,
             duration: totalHoursTIME,
             dateWork: null,
             salaryDay: null,
-            statusLembur: null,
+            statusLembur: statusLembur ?? null,
             validasiLembur: null,
-            absensiId: null,
+            absensiId: dataAbsensi.data[0].absensiId,
           }),
         }
       );
 
       const data = await res.json();
-      const dataAbsensi = await resAbsensi.json();
 
-      if (data.success && data.statusCode === 200) {
+      if (data.status === "success") {
+        console.log("USER", data);
         // Hapus data terkait absensi dari localStorage/sessionStorage
         localStorage.removeItem("workStartTime");
         localStorage.removeItem("currentAbsentId"); // Hapus ID absensi
