@@ -3,6 +3,7 @@ const router = express.Router();
 // const mainRouter = require("./routes");
 const authRoute = require("./authRoute");
 const absensiRoute = require("./absensiRoutes");
+const suratLemburRoute = require("./suratLembur");
 const validationRoute = require("./validationRoutes");
 
 // Debug middleware untuk semua requests
@@ -17,6 +18,7 @@ router.use((req, res, next) => {
 });
 router.use("/auth", authRoute);
 router.use("/absensi", absensiRoute);
+router.use("/izinlembur", suratLemburRoute);
 router.use("/validation", validationRoute);
 
 module.exports = router;

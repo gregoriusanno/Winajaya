@@ -43,15 +43,16 @@ const LoginKaryawan = () => {
           },
         }
       );
-      const res = await fetch(
-        `http://localhost:3002/api/absensi/user/${employeeId}`,
+      console.log(response.data.user.userId);
+      const res = await axios.get(
+        `http://localhost:3002/api/absensi/user/${response.data.user.userId}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${response.data?.token}`,
           },
         }
       );
-      if (response.data?.token && res) {
+      if (response.data?.token) {
         localStorage.setItem("token", response.data.token);
 
         const userData = { ...response.data.user };
@@ -59,8 +60,9 @@ const LoginKaryawan = () => {
 
         localStorage.setItem("userData", JSON.stringify(userData));
         console.log("userData berhasil disimpan ke localStorage:", userData);
-        if (res.role == "ADMIN") {
-          navigate("/Dasboard");
+        console.log(res.data?.data.role);
+        if (res.data?.data.role == "Admin") {
+          navigate("/Dashboard");
         } else {
           navigate("/absensi");
         }

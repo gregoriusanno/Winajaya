@@ -49,14 +49,13 @@ const AbsenAkhir = () => {
 
   const handleSelesaiKerja = async () => {
     // Validasi deskripsi
-    const wordCount = deskripsi.trim().split(/\s+/).length;
-    if (wordCount < 3) {
-      setError("Deskripsi harus minimal 3 kata!");
-      return;
-    }
+    // const wordCount = deskripsi.trim().split(/\s+/).length;
+    // if (wordCount < 3) {
+    //   setError("Deskripsi harus minimal 3 kata!");
+    //   return;
+    // }
 
-    setError("");
-    const currentAbsentId = localStorage.getItem("currentAbsentId");
+    const currentAbsentId = localStorage.getItem("userData");
     const token = localStorage.getItem("token");
 
     console.log("Debug Absen Pulang: Token =", token);
@@ -66,24 +65,85 @@ const AbsenAkhir = () => {
       setError("Data absensi atau token tidak ditemukan. Silakan coba lagi.");
       return;
     }
-
     const now = new Date();
     const clock_out = now.toTimeString().slice(0, 8);
 
+    // Buat total detik
+    const totalSeconds =
+      workDuration.hours * 3600 +
+      workDuration.minutes * 60 +
+      workDuration.seconds;
+
+    // Konversi ke TIME format HH:MM:SS
+    const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(
+      2,
+      "0"
+    );
+    const seconds = String(totalSeconds % 60).padStart(2, "0");
+
+    const totalHoursTIME = `${hours}:${minutes}:${seconds}`;
+
+    let statusLembur;
+
+    if (hours > 8 || (hours === 8 && (minutes > 0 || seconds > 0))) {
+      const day = now.getDay(); // 0 = Minggu, 6 = Sabtu
+
+      // Daftar hari libur
+      const holidays = ["2025-08-17", "2025-08-20"];
+      const todayStr = now.toISOString().slice(0, 10);
+
+      const isWeekend = day === 0 || day === 6;
+      const isHoliday = holidays.includes(todayStr);
+
+      if (!isWeekend && !isHoliday) {
+        statusLembur = "Harian";
+      } else {
+        statusLembur = "HariLibur";
+      }
+    }
+
+    console.log("Clock out:", clock_out);
+    console.log("Total Hours (TIME):", totalHoursTIME);
+    console.log("Status Lembur:", statusLembur);
+
     try {
-      const res = await fetch(``, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          clock_out,
-          description: deskripsi, // Sertakan deskripsi evaluasi harian
-        }),
-      });
+      const { userId } = currentAbsentId;
+      console.log(userId);
+      const resAbsensi = await fetch(
+        `http://localhost:3002/api/absensi/getAbsensibyId/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const res = await fetch(
+        "http://localhost:3002/api/absensi/updateAbsensi",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userId: currentAbsentId.userId,
+            clockIn: null,
+            clockOut: clock_out,
+            duration: totalHoursTIME,
+            dateWork: null,
+            salaryDay: null,
+            statusLembur: null,
+            validasiLembur: null,
+            absensiId: null,
+          }),
+        }
+      );
 
       const data = await res.json();
+      const dataAbsensi = await resAbsensi.json();
 
       if (data.success && data.statusCode === 200) {
         // Hapus data terkait absensi dari localStorage/sessionStorage
@@ -106,7 +166,6 @@ const AbsenAkhir = () => {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
-      
       <div className="max-w-[390px] w-full flex flex-col items-center">
         <div className="flex justify-center mb-6">
           <img src={clockImage} alt="Clock" className="w-32 h-32" />

@@ -76,8 +76,8 @@ const Absensi = () => {
 
   const OUTLET_LOCATION = [
     {
-      lat: -7.938437571671683,
-      lng: 112.63410338419457,
+      lat: -7.930945915386587,
+      lng: 112.62689965351042,
     },
     {
       lat: -6.796001,
@@ -168,12 +168,12 @@ const Absensi = () => {
       // Ambil data user
       const token = localStorage.getItem("token");
       const userData = localStorage.getItem("userData");
-      const locationValid = await checkLocation();
-      if (!locationValid) {
-        setError("Lokasi di luar radius, absen tidak bisa dilakukan.");
-        setIsLoading(false);
-        return;
-      }
+      // const locationValid = await checkLocation();
+      // if (!locationValid) {
+      //   setError("Lokasi di luar radius, absen tidak bisa dilakukan.");
+      //   setIsLoading(false);
+      //   return;
+      // }
       if (!userData) {
         console.log("userData tidak ditemukan di localStorage");
         setError("Data user tidak ditemukan. Silakan login ulang.");
@@ -446,9 +446,6 @@ const Absensi = () => {
                   <textarea
                     value={alasanIzin}
                     onChange={(e) => setAlasanIzin(e.target.value)}
-                    // jka kategori izin adalah libur bersama, maka placeholder menjadi "Berikan alasan libur bersama..."
-                    // jka kategori izin adalah sakit, maka placeholder menjadi "Berikan alasan sakit..." atau "Berikan alasan sakit..."
-                    // jka kategori izin adalah keperluan pribadi, maka placeholder menjadi "Berikan alasan keperluan pribadi..."
                     placeholder={
                       kategoriIzin === "libur_bersama"
                         ? "Jelaskan kegiatan libur bersama..."

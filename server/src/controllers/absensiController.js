@@ -17,9 +17,12 @@ const absensiController = {
       });
     }
   },
-  getAbensi: async (req, res) => {
+  getAbensibyUserId: async (req, res) => {
     try {
-      const [user] = await db.query("SELECT * FROM absensi");
+      const id = db.escape(req.params.id);
+      const [user] = await db.query(
+        `SELECT * FROM absensi WHERE userId = ${id}`
+      );
       res.json({
         status: "success",
         data: user,
@@ -121,6 +124,62 @@ const absensiController = {
       });
     } catch (error) {
       console.error(error); // biar kelihatan error detail di console
+      res.status(500).json({
+        status: "error",
+        message: error.message || "Gagal menyimpan data absensi",
+      });
+    }
+  },
+  updateAbsensi: async (req, res) => {
+    const {
+      userId,
+      clockIn,
+      clockOut,
+      duration,
+      dateWork,
+      salaryDay,
+      statusLembur,
+      validasiLembur,
+      absensiId,
+    } = req.body;
+
+    try {
+      const [result] = await db.query(
+        `
+      UPDATE absensi
+      SET 
+        userId = COALESCE(:userId, userId),
+        clockIn = COALESCE(:clockIn, clockIn),
+        clockOut = COALESCE(:clockOut, clockOut),
+        duration = COALESCE(:duration, duration),
+        dateWork = COALESCE(:dateWork, dateWork),
+        salaryDay = COALESCE(:salaryDay, salaryDay),
+        statusLembur = COALESCE(:statusLembur, statusLembur),
+        validasiLembur = COALESCE(:validasiLembur, validasiLembur)
+      WHERE absensiId = :absensiId;
+      `,
+        {
+          replacements: {
+            userId: userId ?? null,
+            clockIn: clockIn ?? null,
+            clockOut: clockOut ?? null,
+            duration: duration ?? null,
+            dateWork: dateWork ?? null,
+            salaryDay: salaryDay ?? null,
+            statusLembur: statusLembur ?? null,
+            validasiLembur: validasiLembur ?? null,
+            absensiId,
+          },
+          type: db.QueryTypes.UPDATE,
+        }
+      );
+
+      res.json({
+        status: "success",
+        data: result,
+      });
+    } catch (error) {
+      console.error(error);
       res.status(500).json({
         status: "error",
         message: error.message || "Gagal menyimpan data absensi",
