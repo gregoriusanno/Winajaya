@@ -4,7 +4,6 @@ import LoginSuccess from './pages/PERTAMA/LoginSuccess';
 import Absensi from './pages/ABSEN/AbsenAwal';
 import BerandaTeknisi from './pages/BERANDA/BerandaTeknisi';
 import AbsenAkhir from './pages/ABSEN/AbsenAkhir';
-
 import IzinSuccess from './pages/PERTAMA/IzinSuccess';
 import Dashboard from './pages/ADMIN/dashboard';
 

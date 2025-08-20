@@ -73,7 +73,6 @@ const Absensi = () => {
   //   lat: -6.9401128, // Latitude outlet Katsikat
   //   lng: 106.9447146, // Longitude outlet Katsikat
   // };
-  
   const OUTLET_LOCATION = {
     lat: -7.9888889, // Latitude outlet Katsikat
     lng: 112.6838822, // Longitude outlet Katsikat
@@ -138,6 +137,27 @@ const Absensi = () => {
     } else {
       setError("Browser Anda tidak mendukung geolocation.");
     }
+  };
+
+  // Fungsi untuk mengecek apakah waktu saat ini dalam rentang yang diizinkan
+  const isWithinAllowedTime = () => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const currentTime = hours * 60 + minutes; // Konversi ke menit
+
+    // Rentang waktu pagi (08:00 - 08:30)
+    const morningStart = 8 * 60; // 08:00
+    const morningEnd = 15 * 60 + 30; // 08:30
+
+    // Rentang waktu sore (16:00 - 16:30)
+    const eveningStart = 16 * 60; // 16:00
+    const eveningEnd = 24 * 60; // 01:00
+
+    return (
+      (currentTime >= morningStart && currentTime <= morningEnd) ||
+      (currentTime >= eveningStart && currentTime <= eveningEnd)
+    );
   };
 
   // Handle absensi hadir
