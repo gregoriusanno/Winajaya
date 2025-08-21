@@ -1,43 +1,42 @@
+const bcrypt = require("bcryptjs");
 const db = require("../config/database");
 
-const UserController = {
-  getUser: async (req, res) => {
-    try {
-      const [user] = await db.query("SELECT * FROM users");
-      res.json({
-        status: "success",
-        data: user,
-      });
-    } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message || "Gagal mengambil data karyawan",
-      });
-    }
-  },
-  getUserById: async (req, res) => {
-    try {
-      const [user] = await db.query("SELECT * FROM karyawan WHERE id = ?", [
-        req.params.id,
-      ]);
+const registerUser = async (req, res) => {
+  const { nama, email, password, role } = req.body;
+  try {
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-      if (user.length === 0) {
-        return res.status(404).json({
-          status: "error",
-          message: "User tidak ditemukan",
-        });
+    const [result] = await db.query(
+      `INSERT INTO users (name, email, password, role)
+       VALUES (:name, :email, :password, :role)`,
+      {
+        replacements: {
+          name: nama || null,
+          email: email || null,
+          password: hashedPassword || null,
+          role: "Karyawan",
+        },
+        type: db.QueryTypes.INSERT,
       }
-      res.json({
-        status: "success",
-        data: user[0],
-      });
-    } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message || "Gagal mengambil data karyawan",
-      });
-    }
-  },
+    );
+
+    res.json({
+      status: "success",
+      data: {
+        id: result,
+        nama,
+        email,
+        role,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: "error",
+      message: error.message || "Gagal menyimpan data user",
+    });
+  }
 };
 
-module.exports = UserController;
+module.exports = { registerUser };

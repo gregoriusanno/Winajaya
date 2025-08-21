@@ -168,12 +168,7 @@ const Absensi = () => {
       // Ambil data user
       const token = localStorage.getItem("token");
       const userData = localStorage.getItem("userData");
-      // const locationValid = await checkLocation();
-      // if (!locationValid) {
-      //   setError("Lokasi di luar radius, absen tidak bisa dilakukan.");
-      //   setIsLoading(false);
-      //   return;
-      // }
+
       if (!userData) {
         console.log("userData tidak ditemukan di localStorage");
         setError("Data user tidak ditemukan. Silakan login ulang.");
@@ -222,13 +217,9 @@ const Absensi = () => {
       const data = await res.json();
 
       if (data.status === "success") {
-        // Sukses absen hadir
-        // Set session storage untuk tracking alur login
         sessionStorage.setItem("fromPresent", "true");
-        // Simpan waktu mulai kerja
         localStorage.setItem("workStartTime", new Date().toISOString());
         localStorage.setItem("currentAbsentId", data.data.userId);
-        console.log(localStorage);
         navigate("/loginSuccess");
       } else {
         setError("Gagal menyimpan data kehadiran.");
@@ -240,7 +231,6 @@ const Absensi = () => {
     }
   };
 
-  // Ambil employeeId dari localStorage saat mount
   useEffect(() => {
     try {
       const userData = localStorage.getItem("userData");
@@ -259,106 +249,6 @@ const Absensi = () => {
       console.log("Error parsing userData:", e);
     }
   }, []);
-
-  // Cek absen hanya jika employeeId sudah ada
-
-  useEffect(() => {
-    console.log("useEffect cek absen jalan, employeeId:", employeeId);
-    if (!employeeId) return;
-    const checkAbsen = async () => {
-      setIsLoading(true);
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(
-          `https://api.katsikat.id/check-today?employee_id=${employeeId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const data = await res.json();
-        console.log("Hasil API check-today:", data);
-        if (data.data && data.data.isTodayAbsent) {
-          setError("Anda sudah absen hari ini.");
-          setIsAlreadyAbsent(true);
-        } else {
-          setIsAlreadyAbsent(false);
-        }
-      } catch (err) {
-        setError("Gagal cek status absen.");
-        console.log("Error fetch check-today:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    checkAbsen();
-  }, [employeeId]);
-
-  // Handle submit izin
-  const handleSubmitIzin = async () => {
-    if (!kategoriIzin) {
-      setError("Mohon pilih kategori izin");
-      return;
-    }
-    if (kategoriIzin !== "keperluan_pribadi" && !alasanIzin.trim()) {
-      setError("Mohon isi alasan izin/libur");
-      return;
-    }
-    if (!employeeId) {
-      setError("Data user tidak ditemukan. Silakan login ulang.");
-      return;
-    }
-    setIsLoading(true);
-    setError("");
-
-    // Ambil waktu sekarang
-    const now = new Date();
-    const date = now.toISOString().slice(0, 10); // YYYY-MM-DD
-    const clock_in = now.toTimeString().slice(0, 8); // HH:mm:ss
-
-    // Mapping status
-    let status = "";
-    if (kategoriIzin === "sakit") status = "Sick";
-    else if (kategoriIzin === "libur_bersama") status = "Libur Bersama";
-    else if (kategoriIzin === "keperluan_pribadi") status = "Keperluan Pribadi";
-
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("https://api.katsikat.id/permissions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          status,
-          date,
-          description: alasanIzin,
-          clock_in,
-          employee_id: employeeId,
-        }),
-      });
-      const data = await res.json();
-      if (data.success && data.statusCode === 200) {
-        navigate("/izin-success");
-      } else {
-        setError("Gagal menyimpan data izin.");
-      }
-    } catch (err) {
-      setError("Gagal mengirim data izin.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handle modal close dengan animasi
-  const handleCloseModal = () => {
-    setShowModalContent(false);
-    setTimeout(() => {
-      setShowIzinModal(false);
-    }, 300);
-  };
 
   // Cleanup audio saat komponen unmount
   useEffect(() => {
@@ -387,16 +277,7 @@ const Absensi = () => {
         {/* Buttons */}
         <div className="flex flex-col gap-3 mt-6">
           <AnimatedButton
-            onClick={() => setShowIzinModal(true)}
-            className="font-semibold w-full py-3 px-4 rounded-xl text-sm"
-            variant="grey"
-            disabled={isAlreadyAbsent || isLoading}
-          >
-            Form Lembur
-          </AnimatedButton>
-          <AnimatedButton
             onClick={() => {
-              console.log("onClick AnimatedButton");
               handleHadir();
             }}
             className="font-semibold w-full py-3 px-4 rounded-xl text-sm"
@@ -406,79 +287,6 @@ const Absensi = () => {
             Saya Hadir
           </AnimatedButton>
         </div>
-
-        {/* Modal */}
-        {showIzinModal && (
-          <div
-            className={`fixed inset-0 bg-black transition-opacity duration-300 flex items-center justify-center p-4 z-50
-              ${showModalContent ? "bg-opacity-60" : "bg-opacity-0"}`}
-          >
-            <div
-              className={`bg-[#F8FCFF] rounded-3xl p-6 w-full max-w-[320px] mx-4 sm:mx-auto transform transition-all duration-300
-                ${
-                  showModalContent
-                    ? "opacity-100 translate-y-0 scale-100"
-                    : "opacity-0 -translate-y-full scale-150"
-                }`}
-            >
-              <h2 className="font-bebas text-2xl mb-4 text-center">
-                ALASAN LEMBUR
-              </h2>
-
-              <div className="flex items-center gap-2 mb-4">
-                <select
-                  value={kategoriIzin}
-                  onChange={(e) => setKategoriIzin(e.target.value)}
-                  className="w-full h-[50px] p-3 bg-[#F8FCFF] text-gray-600 font-montserrat rounded-xl text-sm outline outline-2 outline-[#EEF1F7]"
-                >
-                  <option value="">Pilih Kategori Lembur</option>
-                  {kategoriOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Jika kategori izin adalah keperluan pribadi, maka tidak perlu isi alasan */}
-              {kategoriIzin !== "keperluan_pribadi" && (
-                <div>
-                  <textarea
-                    value={alasanIzin}
-                    onChange={(e) => setAlasanIzin(e.target.value)}
-                    placeholder={
-                      kategoriIzin === "libur_bersama"
-                        ? "Jelaskan kegiatan libur bersama..."
-                        : kategoriIzin === "sakit"
-                        ? "Jelaskan sakit apa yang anda alami..."
-                        : "Pilih alasan izin diatas!"
-                    }
-                    className="w-full h-24 p-3 rounded-2xl mb-4 font-montserrat resize-none bg-[#F8FCFF] outline outline-2 outline-[#EEF1F7] placeholder: text-sm"
-                  />
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                <AnimatedButton
-                  onClick={handleCloseModal}
-                  className="flex-1 py-3 px-4 rounded-xl text-sm hover:bg-gray-200 transition-colors font-semibold"
-                  variant="grey"
-                  disabled={isLoading}
-                >
-                  Batal
-                </AnimatedButton>
-                <AnimatedButton
-                  onClick={handleSubmitIzin}
-                  className="flex-1 py-3 px-4 rounded-xl text-sm font-semibold"
-                  variant="red"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Mengirim..." : "Kirim"}
-                </AnimatedButton>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

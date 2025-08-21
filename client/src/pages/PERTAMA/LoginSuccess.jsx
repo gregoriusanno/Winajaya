@@ -5,15 +5,8 @@ import locationImage from "../../assets/images/location.png";
 
 const LoginSuccess = () => {
   const navigate = useNavigate();
-
-  // Data dummy untuk treatment (nantinya akan diganti dengan data dari database)
-  const treatmentData = {
-    count: 2,
-    date: "Selasa, 25 Juni 2024",
-  };
-
   const handleContinue = () => {
-    navigate("/BerandaTeknisi");
+    navigate("/absenakhir");
   };
 
   return (

@@ -8,9 +8,11 @@ const {
   getUserById,
   insertAbensi,
   updateAbsensi,
+  checkAbsensiByUserId,
 } = require("../controllers/absensiController");
 
 router.get("/getAbsensibyId/:id", getAbensibyUserId);
+router.get("/checkAbsen/:id", checkAbsensiByUserId);
 router.get("/getAbsensiTable", getAbsensiTable);
 router.get("/user", getUser);
 router.get("/user/:id", getUserById);

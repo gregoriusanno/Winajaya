@@ -17,11 +17,40 @@ const absensiController = {
       });
     }
   },
+  checkAbsensiByUserId: async (req, res) => {
+    try {
+      const id = db.escape(req.params.id);
+
+      const [rows] = await db.query(
+        `
+      SELECT 
+        absensiId,
+        CASE
+          WHEN clockOut IS NULL THEN true
+          ELSE false
+        END AS canLogin
+      FROM absensi
+      WHERE userId = ${id}
+        AND dateWork = CURRENT_DATE
+      LIMIT 1
+      `
+      );
+
+      // 🔥 Kembalikan array biar cocok dengan frontend
+      res.json(rows);
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: error.message || "Gagal mengambil data absensi",
+      });
+    }
+  },
+
   getAbensibyUserId: async (req, res) => {
     try {
       const id = db.escape(req.params.id);
       const [user] = await db.query(
-        `SELECT * FROM absensi WHERE userId = ${id} ORDER BY dateWork DESC`
+        `SELECT * FROM absensi WHERE userId = ${id} AND dateWork = CURRENT_DATE`
       );
       res.json({
         status: "success",
@@ -45,10 +74,13 @@ const absensiController = {
           a.clockOut,
           a.duration,
           sl.reason,
-          a.statusLembur
+          a.statusLembur,
+          a.validation_status,
+          a.validasiLembur,
+          a.dateWork
         FROM absensi a
         LEFT JOIN users u ON u.userId = a.userId
-        LEFT JOIN surat_lembur sl ON sl.userId = a.userId
+        LEFT JOIN surat_lembur sl ON sl.userId = a.userId AND sl.dateLembur = a.dateWork
         ORDER BY 
         a.validasiLembur ASC,
         a.dateWork = CURDATE() DESC,
