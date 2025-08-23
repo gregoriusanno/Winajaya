@@ -58,7 +58,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
           </AnimatedButton>
           <AnimatedButton
             onClick={handleConfirm}
-            variant="blue"
+            variant="red"
             className="px-4 py-2 font-montserrat"
           >
             Ya
