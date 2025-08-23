@@ -1,16 +1,15 @@
-import { useNavigate } from 'react-router-dom';
-import LordIcon from '../../components/Design/LordIcon';
-import AnimatedButton from '../../components/Design/AnimatedButton';
+import { useNavigate } from "react-router-dom";
+import LordIcon from "../../components/Design/LordIcon";
+import AnimatedButton from "../../components/Design/AnimatedButton";
 
 const IzinSuccess = () => {
   const navigate = useNavigate();
 
   const handleContinue = () => {
-    // Set flag bahwa user dari halaman izin
-    sessionStorage.setItem('fromIzin', 'true');
-    navigate('/berandateknisi');
+    sessionStorage.setItem("fromIzin", "true");
+    navigate("/absenakhir");
   };
-   
+
   return (
     <div className="min-h-[100dvh] flex flex-col justify-center items-center bg-white px-10 sm:px-0">
       <div className="w-full sm:w-[380px] p-8 sm:p-8 my-auto bg-white rounded-3xl outline outline-2 outline-[#EEF1F7]">
@@ -21,7 +20,7 @@ const IzinSuccess = () => {
               src="https://cdn.lordicon.com/gtvaxhwv.json"
               trigger="loop"
               colors="primary:#57AEFF,secondary:#57AEFF"
-              style={{ width: '100%', height: '100%' }}
+              style={{ width: "100%", height: "100%" }}
             />
           </div>
         </div>
@@ -33,7 +32,8 @@ const IzinSuccess = () => {
 
         {/* Info Message */}
         <p className="font-montserrat text-sm text-gray-600 text-center mb-8">
-          Laporan izin Anda telah diterima sistem. Mohon tunggu persetujuan dari admin.
+          Laporan izin Anda telah diterima sistem. Mohon tunggu persetujuan dari
+          admin.
         </p>
 
         {/* Cek Data Kinerja */}
@@ -60,4 +60,4 @@ const IzinSuccess = () => {
   );
 };
 
-export default IzinSuccess; 
+export default IzinSuccess;

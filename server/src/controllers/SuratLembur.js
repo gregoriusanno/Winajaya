@@ -20,24 +20,29 @@ const SuratLemburController = {
     }
   },
   insertSuratLembur: async (req, res) => {
+    const { userId, dateLembur, reason } = req.body;
+
     try {
-      const { userId, dateLembur, reason } = req.body;
       const [result] = await db.query(
-        `
-          INSERT INTO surat_lembur (userId, dateLembur, reason)
-          VALUES (?, ?, ?)
-        `,
-        [userId, dateLembur, reason]
+        `INSERT INTO surat_lembur (userId, dateLembur, reason)
+       VALUES (:userId, :dateLembur, :reason)`,
+        {
+          replacements: {
+            userId: userId || null,
+            dateLembur: dateLembur || null,
+            reason: reason || null,
+          },
+          type: db.QueryTypes.INSERT,
+        }
       );
 
       res.json({
         status: "success",
         message: "Surat lembur berhasil disimpan",
-        data: {
-          insertId: result.insertId,
-        },
+        data: result,
       });
     } catch (error) {
+      console.error(error); // debug error detail
       res.status(500).json({
         status: "error",
         message: error.message || "Gagal insert surat lembur",

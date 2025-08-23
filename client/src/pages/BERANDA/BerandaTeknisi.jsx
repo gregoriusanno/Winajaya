@@ -18,7 +18,6 @@ import BreakTimeAlert from "../../components/BreakTimeAlert";
 import AnimatedButton from "../../components/Design/AnimatedButton";
 import workImage from "../../assets/images/work.png";
 
-
 // Konfigurasi axios interceptor
 axios.interceptors.request.use(
   (config) => {
@@ -206,21 +205,17 @@ const BerandaTeknisi = () => {
       //   pageSize: 1000, // Ambil semua data untuk perhitungan
       //   page: 1, // Halaman pertama
       // };
-
       // const response = await axios.get(`https://api.katsikat.id/orders`, {
       //   params,
       // });
-
       // // Log untuk debugging
       // console.log("Token:", localStorage.getItem("token"));
       // console.log("Request Headers:", response.config.headers);
       // console.log("Response:", response.data);
-
       // if (response.data && response.data.data && response.data.data.orders) {
       //   // Ensure response.data.data.orders is always an array
       //   const rawOrders = response.data.data.orders;
       //   const ordersArray = Array.isArray(rawOrders) ? rawOrders : [];
-
       //   setAntrianData({
       //     total: ordersArray.length,
       //   });
@@ -333,7 +328,6 @@ const BerandaTeknisi = () => {
     console.log("Current antrianData:", antrianData);
   }, [antrianData]);
 
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -356,8 +350,8 @@ const BerandaTeknisi = () => {
   }, []);
 
   const handleLogoutConfirm = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    // localStorage.removeItem("token");
+    // localStorage.removeItem("user");
     navigate("/absenakhir");
     setShowLogoutModal(false);
   };
@@ -402,12 +396,11 @@ const BerandaTeknisi = () => {
 
               <AnimatedButton
                 type="submit"
+                onClick={handleLogoutConfirm}
                 className="w-full h-[40px] py-3 sm:py-3.5 px-4 mt-2 bg-gradient-to-r from-[#ffe2e5] to-[#ff5568] text-white rounded-xl opacity-100 font-montserrat font-semibold flex items-center justify-center text-sm"
-                >
+              >
                 KELUAR/LOGOUT
               </AnimatedButton>
-
-  
             </div>
           </div>
         </div>
@@ -420,7 +413,6 @@ const BerandaTeknisi = () => {
         title="Logout Confirmation"
         message="Are you sure you want to logout? Logging out is recommended when work hours are finished."
       />
-
     </div>
   );
 };

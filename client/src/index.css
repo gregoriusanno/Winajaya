@@ -2,10 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #root {
-  height: 100%;
-  overflow: hidden;
+html, body {
+  height: auto;
+  min-height: 100%;
+  overflow-y: auto !important;
 }
+
 
 @media screen and (max-height: 500px) {
   html, body, #root {

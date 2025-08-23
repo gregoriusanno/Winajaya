@@ -7,6 +7,6 @@ const {
 } = require("../controllers/SuratLembur");
 
 router.get("/suratlembur", getSuratLembur);
-router.get("/insertsuratlembur", insertSuratLembur);
+router.post("/insertsuratlembur", insertSuratLembur);
 
 module.exports = router;

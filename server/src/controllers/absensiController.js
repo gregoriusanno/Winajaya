@@ -17,9 +17,41 @@ const absensiController = {
       });
     }
   },
-  getAbensi: async (req, res) => {
+  checkAbsensiByUserId: async (req, res) => {
     try {
-      const [user] = await db.query("SELECT * FROM absensi");
+      const id = db.escape(req.params.id);
+
+      const [rows] = await db.query(
+        `
+      SELECT 
+        absensiId,
+        CASE
+          WHEN clockOut IS NULL THEN true
+          ELSE false
+        END AS canLogin
+      FROM absensi
+      WHERE userId = ${id}
+        AND dateWork = CURRENT_DATE
+      LIMIT 1
+      `
+      );
+
+      // 🔥 Kembalikan array biar cocok dengan frontend
+      res.json(rows);
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: error.message || "Gagal mengambil data absensi",
+      });
+    }
+  },
+
+  getAbensibyUserId: async (req, res) => {
+    try {
+      const id = db.escape(req.params.id);
+      const [user] = await db.query(
+        `SELECT * FROM absensi WHERE userId = ${id} AND dateWork = CURRENT_DATE`
+      );
       res.json({
         status: "success",
         data: user,
@@ -42,10 +74,13 @@ const absensiController = {
           a.clockOut,
           a.duration,
           sl.reason,
-          a.statusLembur
+          a.statusLembur,
+          a.validation_status,
+          a.validasiLembur,
+          a.dateWork
         FROM absensi a
         LEFT JOIN users u ON u.userId = a.userId
-        LEFT JOIN surat_lembur sl ON sl.userId = a.userId
+        LEFT JOIN surat_lembur sl ON sl.userId = a.userId AND sl.dateLembur = a.dateWork
         ORDER BY 
         a.validasiLembur ASC,
         a.dateWork = CURDATE() DESC,
@@ -65,9 +100,8 @@ const absensiController = {
   },
   getUserById: async (req, res) => {
     try {
-      const [user] = await db.query("SELECT * FROM karyawan WHERE id = ?", [
-        req.params.id,
-      ]);
+      const id = db.escape(req.params.id);
+      const [user] = await db.query(`SELECT * FROM users WHERE userId = ${id}`);
 
       if (user.length === 0) {
         return res.status(404).json({
@@ -97,31 +131,90 @@ const absensiController = {
       statusLembur,
       validasiLembur,
     } = req.body;
-
     try {
-      const [user] = await db.query(
-        `
-        INSERT INTO absensi (userId, clockIn, clockOut, duration, dateWork, salaryDay, statusLembur, validasiLembur)
-        VALUES ?,?,?,?,?,?,?,?
-        `
-      )[
-        (userId,
-        clockIn,
-        clockOut,
-        duration,
-        dateWork,
-        salaryDay,
-        statusLembur,
-        validasiLembur)
-      ];
+      const [result] = await db.query(
+        `INSERT INTO absensi 
+          (userId, clockIn, clockOut, duration, dateWork, salaryDay, statusLembur, validasiLembur)
+        VALUES (:userId, :clockIn, :clockOut, :duration, :dateWork, :salaryDay, :statusLembur, :validasiLembur)`,
+        {
+          replacements: {
+            userId: userId || null,
+            clockIn: clockIn || null,
+            clockOut: clockOut || null,
+            duration: duration || null,
+            dateWork: dateWork || null,
+            salaryDay: salaryDay || null,
+            statusLembur: statusLembur || null,
+            validasiLembur: validasiLembur || null,
+          },
+          type: db.QueryTypes.INSERT,
+        }
+      );
       res.json({
         status: "success",
-        data: user,
+        data: result,
       });
     } catch (error) {
+      console.error(error); // biar kelihatan error detail di console
       res.status(500).json({
         status: "error",
-        message: error.message || "Gagal mengambil data absensi",
+        message: error.message || "Gagal menyimpan data absensi",
+      });
+    }
+  },
+  updateAbsensi: async (req, res) => {
+    const {
+      userId,
+      clockIn,
+      clockOut,
+      duration,
+      dateWork,
+      salaryDay,
+      statusLembur,
+      validasiLembur,
+      absensiId,
+    } = req.body;
+
+    try {
+      const [result] = await db.query(
+        `
+      UPDATE absensi
+      SET 
+        userId = COALESCE(:userId, userId),
+        clockIn = COALESCE(:clockIn, clockIn),
+        clockOut = COALESCE(:clockOut, clockOut),
+        duration = COALESCE(:duration, duration),
+        dateWork = COALESCE(:dateWork, dateWork),
+        salaryDay = COALESCE(:salaryDay, salaryDay),
+        statusLembur = COALESCE(:statusLembur, statusLembur),
+        validasiLembur = COALESCE(:validasiLembur, validasiLembur)
+      WHERE absensiId = :absensiId;
+      `,
+        {
+          replacements: {
+            userId: userId ?? null,
+            clockIn: clockIn ?? null,
+            clockOut: clockOut ?? null,
+            duration: duration ?? null,
+            dateWork: dateWork ?? null,
+            salaryDay: salaryDay ?? null,
+            statusLembur: statusLembur ?? null,
+            validasiLembur: validasiLembur ?? null,
+            absensiId,
+          },
+          type: db.QueryTypes.UPDATE,
+        }
+      );
+
+      res.json({
+        status: "success",
+        data: result,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: error.message || "Gagal menyimpan data absensi",
       });
     }
   },
