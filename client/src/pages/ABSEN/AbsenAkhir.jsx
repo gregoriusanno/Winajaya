@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedButton from "../../components/Design/AnimatedButton";
 import clockImage from "../../assets/images/clock.png";
+import ConfirmationModal from "../../components/Modal/ConfirmationModal";
 
 const AbsenAkhir = () => {
   const navigate = useNavigate();
@@ -15,8 +16,8 @@ const AbsenAkhir = () => {
   const [showIzinModal, setShowIzinModal] = useState(false);
   const [showModalContent, setShowModalContent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const videoRef = useRef(null);
 
+  const [showConfirmLogout, setShowConfirmLogout] = useState(false);
   useEffect(() => {
     const startTime = localStorage.getItem("workStartTime");
 
@@ -162,7 +163,7 @@ const AbsenAkhir = () => {
         }
       );
       const dataAbsensi = await resAbsensi.json();
-      console.log(clock_out);
+
       const res = await fetch(
         "http://localhost:3002/api/absensi/updateAbsensi",
         {
@@ -226,8 +227,10 @@ const AbsenAkhir = () => {
             {workDuration.seconds} Detik
           </p>
         </div>
+
+        {/* 🔹 tombol hanya buka modal */}
         <AnimatedButton
-          onClick={handleSelesaiKerja}
+          onClick={() => setShowConfirmLogout(true)}
           variant="red"
           className="max-w-xs w-full py-3 px-6 font-montserrat font-semibold rounded-2xl text-sm"
         >
@@ -282,6 +285,16 @@ const AbsenAkhir = () => {
           </div>
         </div>
       )}
+      <ConfirmationModal
+        isOpen={showConfirmLogout}
+        onClose={() => setShowConfirmLogout(false)}
+        onConfirm={() => {
+          setShowConfirmLogout(false);
+          handleSelesaiKerja(); // jalankan function
+        }}
+        title="Konfirmasi Absen Pulang"
+        message="Apakah Anda yakin ingin mengakhiri pekerjaan dan absen pulang sekarang?"
+      />
     </div>
   );
 };

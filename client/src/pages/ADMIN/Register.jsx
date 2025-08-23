@@ -12,6 +12,7 @@ const Register = () => {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false); // untuk popup sukses
 
   const handleChange = (e) => {
     setFormData({
@@ -48,8 +49,11 @@ const Register = () => {
       );
 
       if (response.data.status === "success") {
-        alert("Register Berhasil");
-        navigate("/Dashboard");
+        setSuccess(true); // tampilkan pop up
+        setTimeout(() => {
+          setSuccess(false);
+          navigate("/Dashboard");
+        }, 2000);
       }
     } catch (error) {
       console.error("Error register:", error);
@@ -71,6 +75,7 @@ const Register = () => {
           </p>
         </div>
 
+        {/* Error Message */}
         {error && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm font-montserrat">
             {error}
@@ -78,7 +83,7 @@ const Register = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Nama */}
+          {/* input fields... sama seperti sebelumnya */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
               <span className="text-gray-500 text-lg">👤</span>
@@ -95,7 +100,6 @@ const Register = () => {
               autoComplete="name"
             />
           </div>
-
           {/* Email */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
@@ -115,7 +119,6 @@ const Register = () => {
               autoComplete="email"
             />
           </div>
-
           {/* Password */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
@@ -144,7 +147,6 @@ const Register = () => {
               autoComplete="current-password"
             />
           </div>
-
           {/* Confirm Password */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
@@ -172,7 +174,6 @@ const Register = () => {
               autoComplete="current-password"
             />
           </div>
-
           <AnimatedButton
             type="submit"
             className="w-full h-[40px] bg-gradient-to-r from-[#ffe2e5] to-[#ff5568] text-white rounded-xl font-montserrat font-semibold"
@@ -181,6 +182,20 @@ const Register = () => {
           </AnimatedButton>
         </form>
       </div>
+
+      {/* Success Popup */}
+      {success && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40">
+          <div className="bg-white px-6 py-4 rounded-2xl shadow-xl text-center">
+            <h3 className="text-lg font-semibold text-green-600">
+              ✅ Register Berhasil!
+            </h3>
+            <p className="text-sm text-gray-600 mt-2">
+              Anda akan diarahkan ke Dashboard...
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

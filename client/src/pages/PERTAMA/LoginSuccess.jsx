@@ -6,7 +6,7 @@ import locationImage from "../../assets/images/location.png";
 const LoginSuccess = () => {
   const navigate = useNavigate();
   const handleContinue = () => {
-    navigate("/absenakhir");
+    navigate("/berandateknisi");
   };
 
   return (

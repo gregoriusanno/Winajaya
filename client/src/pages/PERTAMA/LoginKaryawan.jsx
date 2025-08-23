@@ -60,14 +60,15 @@ const LoginKaryawan = () => {
       }
 
       if (response.data?.token) {
+        const userData = { ...response.data.user };
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("userData", JSON.stringify(userData));
-        const userData = { ...response.data.user };
         navigate("/absensi");
       } else {
         setError("Token tidak ditemukan dalam response");
       }
     } catch (error) {
+      console.log(error);
       setError(error.response?.data?.message || "Terjadi kesalahan saat login");
     }
 

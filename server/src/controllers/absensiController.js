@@ -82,9 +82,10 @@ const absensiController = {
         LEFT JOIN users u ON u.userId = a.userId
         LEFT JOIN surat_lembur sl ON sl.userId = a.userId AND sl.dateLembur = a.dateWork
         ORDER BY 
-        a.validasiLembur ASC,
-        a.dateWork = CURDATE() DESC,
-        a.dateWork DESC;
+          a.validasiLembur IS NOT NULL ASC,        
+          a.statusLembur IS NULL,              
+          a.dateWork = CURDATE() DESC,         
+          a.dateWork DESC;   
         `
       );
       res.json({

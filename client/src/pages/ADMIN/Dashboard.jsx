@@ -121,7 +121,11 @@ const Dashboard = () => {
 
     setFilteredData(filtered);
   };
-
+  const handleOut = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate("/");
+  };
   return (
     <>
       <div className="bg-gray-100 min-h-screen p-6">
@@ -129,16 +133,27 @@ const Dashboard = () => {
           {/* Judul */}
           <h1 className="text-3xl font-bold mb-6">Rekap Absen Karyawan</h1>
           {/* Search & Filter */}
-          <div className="flex flex-wrap gap-4 mb-6">
+          <div className="flex flex-row gap-4 mb-6">
+            <AnimatedButton
+              onClick={() => {
+                handleOut();
+              }}
+              className="font-semibold  w-full py-3 px-4 rounded-xl text-sm"
+              variant="red"
+            >
+              Keluar
+            </AnimatedButton>
             <AnimatedButton
               onClick={() => {
                 navigate("/RegisterKaryawan");
               }}
               className="font-semibold  w-full py-3 px-4 rounded-xl text-sm"
-              variant="grey"
+              variant="green"
             >
               Register Karyawan
             </AnimatedButton>
+          </div>
+          <div className="flex flex-wrap gap-4 mb-6">
             <input
               type="text"
               placeholder="Cari Nama"
