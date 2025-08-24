@@ -1,132 +1,132 @@
-require("dotenv").config();
+// require("dotenv").config();
 
-const cors = require("cors");
-const express = require("express");
-const path = require("path");
+// const cors = require("cors");
+// const express = require("express");
+// const path = require("path");
 
-// Import your database and routes
-const sequelize = require("./src/config/database");
-const routes = require("./src/routes");
+// // Import your database and routes
+// const sequelize = require("./src/config/database");
+// const routes = require("./src/routes");
 
-const app = express();
+// const app = express();
 
-// ✅ Allowed origins untuk monorepo setup
-const allowedOrigins = [
-  // Local development
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "http://127.0.0.1:5173",
-  "https://winajaya-nqf7.vercel.app", // Domain utama Vercel
+// // ✅ Allowed origins untuk monorepo setup
+// const allowedOrigins = [
+//   // Local development
+//   "http://localhost:5173",
+//   "http://localhost:3000",
+//   "http://127.0.0.1:5173",
+//   "https://winajaya-nqf7.vercel.app", // Domain utama Vercel
 
-  // Mobile/Capacitor
-  "capacitor://localhost",
-  "http://localhost",
-];
+//   // Mobile/Capacitor
+//   "capacitor://localhost",
+//   "http://localhost",
+// ];
 
-// ✅ CORS configuration
-const corsOptions = {
-  // origin: "https://winajaya.vercel.app",
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Requested-With",
-    "Accept",
-    "Origin",
-    "Cache-Control",
-  ],
-  optionsSuccessStatus: 200,
-};
+// // ✅ CORS configuration
+// const corsOptions = {
+//   // origin: "https://winajaya.vercel.app",
+//   credentials: true,
+//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+//   allowedHeaders: [
+//     "Content-Type",
+//     "Authorization",
+//     "X-Requested-With",
+//     "Accept",
+//     "Origin",
+//     "Cache-Control",
+//   ],
+//   optionsSuccessStatus: 200,
+// };
 
-// ✅ Apply CORS
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+// // ✅ Apply CORS
+// app.use(cors(corsOptions));
+// app.options("*", cors(corsOptions));
 
-// ✅ Body parsing
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-app.use((req, res, next) => {
-  console.log("📢 DEBUG ORIGIN:", req.headers.origin);
-  console.log("📢 DEBUG METHOD:", req.method);
-  next();
-});
-app.use((req, res, next) => {
-  console.log(`🌐 ${new Date().toISOString()} - ${req.method} ${req.path}`);
-  console.log(`📍 Origin: ${req.headers.origin || "none"}`);
-  console.log(
-    `🔐 Authorization: ${req.headers.authorization ? "present" : "none"}`
-  );
-  next();
-});
+// // ✅ Body parsing
+// app.use(express.json({ limit: "10mb" }));
+// app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+// app.use((req, res, next) => {
+//   console.log("📢 DEBUG ORIGIN:", req.headers.origin);
+//   console.log("📢 DEBUG METHOD:", req.method);
+//   next();
+// });
+// app.use((req, res, next) => {
+//   console.log(`🌐 ${new Date().toISOString()} - ${req.method} ${req.path}`);
+//   console.log(`📍 Origin: ${req.headers.origin || "none"}`);
+//   console.log(
+//     `🔐 Authorization: ${req.headers.authorization ? "present" : "none"}`
+//   );
+//   next();
+// });
 
-// ✅ Health check - penting untuk monorepo
-app.get("/api", (req, res) => {
-  res.json({
-    message: "🚀 API is running",
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || "development",
-    cors: "enabled",
-    allowedOrigins: allowedOrigins,
-  });
-});
+// // ✅ Health check - penting untuk monorepo
+// app.get("/api", (req, res) => {
+//   res.json({
+//     message: "🚀 API is running",
+//     timestamp: new Date().toISOString(),
+//     environment: process.env.NODE_ENV || "development",
+//     cors: "enabled",
+//     allowedOrigins: allowedOrigins,
+//   });
+// });
 
-// ✅ API routes
-app.use("/api", routes);
+// // ✅ API routes
+// app.use("/api", routes);
 
-// ✅ 404 handler for API routes
-app.use("/api/*", (req, res) => {
-  res.status(404).json({
-    error: "API route not found",
-    path: req.path,
-    availableRoutes: ["/api", "/api/auth/login"], // sesuaikan dengan routes Anda
-  });
-});
+// // ✅ 404 handler for API routes
+// app.use("/api/*", (req, res) => {
+//   res.status(404).json({
+//     error: "API route not found",
+//     path: req.path,
+//     availableRoutes: ["/api", "/api/auth/login"], // sesuaikan dengan routes Anda
+//   });
+// });
 
-// ✅ Error handler
-app.use((err, req, res, next) => {
-  console.error("💥 Server Error:", err);
+// // ✅ Error handler
+// app.use((err, req, res, next) => {
+//   console.error("💥 Server Error:", err);
 
-  if (err.message.includes("CORS")) {
-    return res.status(403).json({
-      error: "CORS Error",
-      message: err.message,
-    });
-  }
+//   if (err.message.includes("CORS")) {
+//     return res.status(403).json({
+//       error: "CORS Error",
+//       message: err.message,
+//     });
+//   }
 
-  res.status(500).json({
-    error: "Internal server error",
-    message:
-      process.env.NODE_ENV === "development"
-        ? err.message
-        : "Something went wrong",
-  });
-});
+//   res.status(500).json({
+//     error: "Internal server error",
+//     message:
+//       process.env.NODE_ENV === "development"
+//         ? err.message
+//         : "Something went wrong",
+//   });
+// });
 
-// ✅ Database initialization
-(async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("✅ Database connection established.");
+// // ✅ Database initialization
+// (async () => {
+//   try {
+//     await sequelize.authenticate();
+//     console.log("✅ Database connection established.");
 
-    // Hanya sync di development, di production sebaiknya gunakan migrations
-    if (process.env.NODE_ENV !== "production") {
-      await sequelize.sync();
-      console.log("✅ Models synchronized.");
-    }
-  } catch (error) {
-    console.error("❌ Database connection failed:", error);
-  }
-})();
+//     // Hanya sync di development, di production sebaiknya gunakan migrations
+//     if (process.env.NODE_ENV !== "production") {
+//       await sequelize.sync();
+//       console.log("✅ Models synchronized.");
+//     }
+//   } catch (error) {
+//     console.error("❌ Database connection failed:", error);
+//   }
+// })();
 
-// Export untuk Vercel
-module.exports = app;
+// // Export untuk Vercel
+// module.exports = app;
 
-// Local development server
-if (require.main === module) {
-  const PORT = process.env.PORT || 3001;
-  app.listen(PORT, () => {
-    console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-    console.log(`📍 API endpoint: http://localhost:${PORT}/api`);
-  });
-}
+// // Local development server
+// if (require.main === module) {
+//   const PORT = process.env.PORT || 3001;
+//   app.listen(PORT, () => {
+//     console.log(`🚀 Backend server running on http://localhost:${PORT}`);
+//     console.log(`📍 API endpoint: http://localhost:${PORT}/api`);
+//   });
+// }
