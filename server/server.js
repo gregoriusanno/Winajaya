@@ -16,7 +16,6 @@ const allowedOrigins = [
   "https://winajaya-nqf7.vercel.app", // backend (Vercel)
   "https://winajaya.vercel.app", // frontend (Vercel)
 ];
-
 const app = express();
 
 // ✅ CORS config
@@ -50,11 +49,15 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin}`);
   next();
 });
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "https://winajaya.vercel.app"); // Or '*' for any origin
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE"); // Add allowed methods
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type"); // Add allowed headers
+  next();
+});
 
-// ✅ Routes dengan prefix /api (harus sesuai vercel.json)
 app.use("/api", routes);
 
-// ✅ Database connection
 (async () => {
   try {
     await sequelize.authenticate();
@@ -66,10 +69,8 @@ app.use("/api", routes);
   }
 })();
 
-// ✅ Export untuk Vercel
 module.exports = app;
 
-// ✅ Local development
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
