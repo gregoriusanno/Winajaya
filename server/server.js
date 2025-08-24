@@ -19,13 +19,44 @@ const allowedOrigins = [
 
 const app = express();
 
-// ✅ Konfigurasi CORS
+// ✅ Manual CORS middleware untuk Vercel
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  console.log("Request origin:", origin);
+  console.log("Request method:", req.method);
+  console.log("Request path:", req.path);
+
+  // Set CORS headers
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  } else if (!origin) {
+    res.header("Access-Control-Allow-Origin", "*");
+  }
+
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+
+  // Handle preflight OPTIONS request
+  if (req.method === "OPTIONS") {
+    console.log("Handling OPTIONS preflight request");
+    return res.status(200).end();
+  }
+
+  next();
+});
+
+// ✅ Backup CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    // Izinkan tanpa origin (misalnya request dari Postman) atau kalau masuk whitelist
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log("CORS blocked origin:", origin);
       callback(new Error("Not allowed by CORS: " + origin));
     }
   },
@@ -35,8 +66,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-// Preflight (OPTIONS)
-app.options("*", cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -44,17 +73,14 @@ app.use("/public", express.static(path.join(__dirname, "public")));
 
 // logging middleware
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}`, {
-    query: req.query,
-    params: req.params,
-  });
+  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin}`);
   next();
 });
 
-// routes
-app.use("/api", routes);
+// ✅ Routes - pastikan menggunakan path yang benar
+app.use("/", routes); // Bukan "/api" karena routing sudah di-handle Vercel
 
-// ✅ Database connection (once, not per request)
+// Database connection
 (async () => {
   try {
     await sequelize.authenticate();
@@ -66,10 +92,10 @@ app.use("/api", routes);
   }
 })();
 
-// ⚡ Export app for Vercel (no app.listen here)
+// ✅ Export untuk Vercel
 module.exports = app;
 
-// ✅ For local dev only, run with `node index.js`
+// Local development
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {

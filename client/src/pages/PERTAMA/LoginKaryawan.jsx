@@ -25,6 +25,7 @@ const LoginKaryawan = () => {
     try {
       const loginUrl = "https://winajaya-nqf7.vercel.app/api/auth/login";
       const response = await axios.post(loginUrl, {
+        withCredentials: true,
         email: formData.email,
         password: formData.password,
       });
@@ -36,6 +37,7 @@ const LoginKaryawan = () => {
       const checkAbsen = await axios.get(
         `https://winajaya-nqf7.vercel.app/api/absensi/checkAbsen/${response.data.user.userId}`,
         {
+          withCredentials: true,
           headers: {
             Authorization: `Bearer ${response.data?.token}`,
           },
