@@ -36,6 +36,7 @@ const Register = () => {
       const response = await axios.post(
         RegisterUrl,
         {
+          withCredentials: true,
           nama: formData.nama,
           email: formData.email,
           password: formData.password,
