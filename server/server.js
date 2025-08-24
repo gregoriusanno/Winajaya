@@ -16,8 +16,6 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "http://127.0.0.1:5173",
-
-  // Vercel domains - SAMA untuk frontend dan backend dalam monorepo
   "https://winajaya-nqf7.vercel.app", // Domain utama Vercel
 
   // Mobile/Capacitor
