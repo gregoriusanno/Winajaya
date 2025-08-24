@@ -21,7 +21,7 @@ const app = express();
 // middleware
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: "*",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
