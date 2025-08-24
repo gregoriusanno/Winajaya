@@ -5,7 +5,10 @@ const jwt = require("jsonwebtoken");
 const login = async (req, res) => {
   try {
     // ✅ Tambahin header CORS di sini
-    res.setHeader("Access-Control-Allow-Origin", "https://winajaya.vercel.app");
+    res.setHeader(
+      "Access-Control-Allow-Origin",
+      "https://winajaya-two.vercel.app/"
+    );
     res.setHeader(
       "Access-Control-Allow-Methods",
       "GET, POST, PUT, DELETE, OPTIONS"
