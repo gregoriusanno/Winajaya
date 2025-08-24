@@ -92,7 +92,7 @@ const Absensi = () => {
       const token = localStorage.getItem("token");
       const userData = localStorage.getItem("userData");
 
-      await checkLocation();
+      // await checkLocation();
 
       if (!userData) {
         setError("Data user tidak ditemukan. Silakan login ulang.");
