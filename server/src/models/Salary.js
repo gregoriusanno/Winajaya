@@ -41,8 +41,8 @@ const Salary = sequelize.define(
   }
 );
 
-Expense.associate = (models) => {
-  Expense.belongsTo(models.User, {
+Salary.associate = (models) => {
+  Salary.belongsTo(models.User, {
     foreignKey: "userId",
     onDelete: "CASCADE",
   });

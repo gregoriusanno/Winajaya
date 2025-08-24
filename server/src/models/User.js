@@ -35,4 +35,19 @@ const User = sequelize.define(
   }
 );
 
+User.associate = (models) => {
+  User.hasMany(models.Salary, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+  });
+  User.hasMany(models.Absensi, {
+    foreignKey: "userId",
+    as: "absensi",
+  });
+  User.hasMany(models.SuratLembur, {
+    foreignKey: "userId",
+    as: "lembur",
+  });
+};
+
 module.exports = User;

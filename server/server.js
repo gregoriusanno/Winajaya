@@ -1,26 +1,18 @@
 require("dotenv").config();
-
 const cors = require("cors");
 const express = require("express");
-const path = require("path");
-
-// Import your database and routes
 const sequelize = require("./src/config/database");
 const routes = require("./src/routes");
 
 const app = express();
 
-// ✅ Allowed origins untuk monorepo setup
+// ✅ Allowed origins
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  "http://127.0.0.1:5173",
-  "https://winajaya.vercel.app", // Frontend Production
-  "capacitor://localhost",
-  "http://localhost",
+  "https://winajaya.vercel.app",
 ];
 
-// ✅ CORS configuration (pakai function supaya fleksibel)
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -31,101 +23,54 @@ const corsOptions = {
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Requested-With",
-    "Accept",
-    "Origin",
-    "Cache-Control",
-  ],
-  optionsSuccessStatus: 200,
 };
 
-// ✅ Apply CORS
+// Middleware
 app.use(cors(corsOptions));
+app.use(express.json());
 
-// ✅ Body parsing
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-// ✅ Logging middleware
-app.use((req, res, next) => {
-  console.log(`🌐 ${new Date().toISOString()} - ${req.method} ${req.path}`);
-  console.log(`📍 Origin: ${req.headers.origin || "none"}`);
-  next();
-});
-
-// ✅ Root endpoint (untuk health check Render)
+// Root & health check
 app.get("/", (req, res) => {
-  res.send("🚀 Backend is live on Render");
+  res.send("🚀 Backend is live (Vercel Serverless)");
 });
 
-// ✅ Health check API
 app.get("/api", (req, res) => {
   res.json({
     message: "🚀 API is running",
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || "development",
-    cors: "enabled",
-    allowedOrigins: allowedOrigins,
+    time: new Date().toISOString(),
   });
 });
 
-// ✅ API routes
+// Routes
 app.use("/api", routes);
 
-// ✅ 404 handler for API routes
-app.use("/api/*", (req, res) => {
-  res.status(404).json({
-    error: "API route not found",
-    path: req.path,
-  });
-});
-
-// ✅ Error handler
+// Error handler
 app.use((err, req, res, next) => {
-  console.error("💥 Server Error:", err);
-
-  if (err.message.includes("CORS")) {
-    return res.status(403).json({
-      error: "CORS Error",
-      message: err.message,
-    });
-  }
-
-  res.status(500).json({
-    error: "Internal server error",
-    message:
-      process.env.NODE_ENV === "development"
-        ? err.message
-        : "Something went wrong",
-  });
+  console.error("💥 Error:", err);
+  res.status(500).json({ error: err.message });
 });
 
-// ✅ Database initialization
+// DB init
 (async () => {
   try {
     await sequelize.authenticate();
-    console.log("✅ Database connection established.");
-
+    console.log("✅ Database connected");
     if (process.env.NODE_ENV !== "production") {
       await sequelize.sync();
-      console.log("✅ Models synchronized.");
+      console.log("✅ Models synced");
     }
   } catch (error) {
-    console.error("❌ Database connection failed:", error);
+    console.error("❌ Database error:", error);
   }
 })();
 
-// Export untuk Render / Vercel
+// 👉 Export untuk serverless
 module.exports = app;
 
-// ✅ Local development server
+// Lokal dev pakai listen
 if (require.main === module) {
   const PORT = process.env.PORT || 3001;
-  app.listen(PORT, () => {
-    console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-    console.log(`📍 API endpoint: http://localhost:${PORT}/api`);
-  });
+  app.listen(PORT, () =>
+    console.log(`🚀 Server running at http://localhost:${PORT}`)
+  );
 }

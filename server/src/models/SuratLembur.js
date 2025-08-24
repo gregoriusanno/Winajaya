@@ -12,9 +12,9 @@ const SuratLembur = sequelize.define(
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      refrences: {
-        model: "user",
-        key: "id",
+      references: {
+        model: "users",
+        key: "userId",
       },
     },
     dateLembur: {
@@ -39,7 +39,7 @@ const SuratLembur = sequelize.define(
   {
     paranoid: true,
     timestamps: true,
-    tableName: "orders",
+    tableName: "surat_lembur",
   }
 );
 

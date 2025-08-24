@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
 const Absensi = sequelize.define(
-  "absensi",
+  "Absensi",
   {
     absensiId: {
       type: DataTypes.INTEGER,
@@ -23,7 +23,7 @@ const Absensi = sequelize.define(
     },
     clockOut: {
       type: DataTypes.TIME,
-      allowNull: false,
+      allowNull: true, // <-- ubah jadi true
     },
     duration: {
       type: DataTypes.TIME,
@@ -45,23 +45,13 @@ const Absensi = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    created_at: {
-      allowNull: false,
-      type: DataTypes.DATE,
-      defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
-    },
-    updated_at: {
-      allowNull: false,
-      type: DataTypes.DATE,
-      defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
-    },
   },
   {
-    paranoid: true,
-    timestamps: true,
     tableName: "absensi",
+    timestamps: true,
     createdAt: "created_at",
     updatedAt: "updated_at",
+    paranoid: true,
   }
 );
 
