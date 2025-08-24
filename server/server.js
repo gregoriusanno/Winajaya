@@ -13,6 +13,7 @@ const allowedOrigins = [
   "http://192.168.100.17:3002",
   "capacitor://localhost",
   "http://localhost",
+  "http://winajaya-nqf7.vercel.app",
 ];
 
 const app = express();
