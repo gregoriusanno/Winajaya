@@ -376,7 +376,7 @@ const BerandaTeknisi = () => {
 
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-white font-montserrat">
-      <Header />
+      {/* <Header /> */}
 
       {/* Main Content dengan overflow scroll */}
       <main className="flex-1 overflow-y-auto pb-10">
