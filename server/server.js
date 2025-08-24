@@ -25,7 +25,7 @@ const allowedOrigins = [
 
 // ✅ CORS configuration
 const corsOptions = {
-  origin: "https://winajaya.vercel.app",
+  // origin: "https://winajaya.vercel.app",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: [
