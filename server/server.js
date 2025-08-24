@@ -22,16 +22,7 @@ const app = express();
 // middleware
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // izinkan request tanpa origin (contoh: Postman, curl)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: true,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
