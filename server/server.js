@@ -11,6 +11,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "https://winajaya.vercel.app",
+  "https://winajaya-two.vercel.app",
   "https://winajaya-production.up.railway.app",
 ];
 
