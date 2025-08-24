@@ -4,89 +4,166 @@ const cors = require("cors");
 const express = require("express");
 const path = require("path");
 
+// Import your database and routes
 const sequelize = require("./src/config/database");
 const routes = require("./src/routes");
 
-const allowedOrigins = [
-  "http://192.168.100.17:5173",
-  "http://localhost:5173",
-  "http://192.168.100.17:3002",
-  "capacitor://localhost",
-  "http://localhost",
-  "https://winajaya-nqf7.vercel.app", // backend (Vercel)
-  "https://winajaya.vercel.app", // frontend (Vercel)
-];
-
 const app = express();
 
-// ✅ CORS config - FIXED
+// ✅ Allowed origins untuk monorepo setup
+const allowedOrigins = [
+  // Local development
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://127.0.0.1:5173",
+
+  // Vercel domains - SAMA untuk frontend dan backend dalam monorepo
+  "https://winajaya-nqf7.vercel.app", // Domain utama Vercel
+
+  // Mobile/Capacitor
+  "capacitor://localhost",
+  "http://localhost",
+];
+
+// ✅ CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    console.log("🔍 Request from origin:", origin);
+
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) {
+      console.log("✅ No origin header - allowing");
+      return callback(null, true);
+    }
 
     if (allowedOrigins.includes(origin)) {
+      console.log("✅ Origin allowed:", origin);
       callback(null, true);
     } else {
-      console.log("❌ CORS blocked origin:", origin);
-      callback(new Error("Not allowed by CORS: " + origin));
+      console.log("❌ Origin blocked:", origin);
+      console.log("📝 Allowed origins:", allowedOrigins);
+      callback(new Error(`CORS blocked: ${origin}`));
     }
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: [
     "Content-Type",
     "Authorization",
     "X-Requested-With",
     "Accept",
     "Origin",
+    "Cache-Control",
   ],
-  optionsSuccessStatus: 200, // For legacy browser support
+  optionsSuccessStatus: 200,
 };
 
-// ✅ Apply CORS BEFORE other middleware
+// ✅ Apply CORS
 app.use(cors(corsOptions));
 
-app.options("*", cors(corsOptions));
+// ✅ Explicit preflight handler
+app.options("*", (req, res) => {
+  const origin = req.headers.origin;
+  console.log("📋 Preflight OPTIONS for:", req.path, "from:", origin);
 
-// ✅ Body parser
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+  if (!origin || allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin || "*");
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+    );
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, X-Requested-With, Accept, Origin"
+    );
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.status(200).end();
+  } else {
+    res.status(403).json({ error: "CORS not allowed" });
+  }
+});
 
-// ✅ Static folder
-app.use("/public", express.static(path.join(__dirname, "public")));
+// ✅ Body parsing
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// ✅ Logging middleware
+// ✅ Request logging
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin}`);
+  console.log(`🌐 ${new Date().toISOString()} - ${req.method} ${req.path}`);
+  console.log(`📍 Origin: ${req.headers.origin || "none"}`);
+  console.log(
+    `🔐 Authorization: ${req.headers.authorization ? "present" : "none"}`
+  );
   next();
 });
 
-// ✅ Routes
-app.use("/api", routes);
-
-// ✅ Root route for health check
-app.get("/", (req, res) => {
-  res.json({ message: "API is running", timestamp: new Date().toISOString() });
+// ✅ Health check - penting untuk monorepo
+app.get("/api", (req, res) => {
+  res.json({
+    message: "🚀 API is running",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+    cors: "enabled",
+    allowedOrigins: allowedOrigins,
+  });
 });
 
-// Database initialization
+// ✅ API routes
+app.use("/api", routes);
+
+// ✅ 404 handler for API routes
+app.use("/api/*", (req, res) => {
+  res.status(404).json({
+    error: "API route not found",
+    path: req.path,
+    availableRoutes: ["/api", "/api/auth/login"], // sesuaikan dengan routes Anda
+  });
+});
+
+// ✅ Error handler
+app.use((err, req, res, next) => {
+  console.error("💥 Server Error:", err);
+
+  if (err.message.includes("CORS")) {
+    return res.status(403).json({
+      error: "CORS Error",
+      message: err.message,
+    });
+  }
+
+  res.status(500).json({
+    error: "Internal server error",
+    message:
+      process.env.NODE_ENV === "development"
+        ? err.message
+        : "Something went wrong",
+  });
+});
+
+// ✅ Database initialization
 (async () => {
   try {
     await sequelize.authenticate();
     console.log("✅ Database connection established.");
-    await sequelize.sync();
-    console.log("✅ Models synchronized.");
+
+    // Hanya sync di development, di production sebaiknya gunakan migrations
+    if (process.env.NODE_ENV !== "production") {
+      await sequelize.sync();
+      console.log("✅ Models synchronized.");
+    }
   } catch (error) {
-    console.error("❌ Unable to connect to the database:", error);
+    console.error("❌ Database connection failed:", error);
   }
 })();
 
+// Export untuk Vercel
 module.exports = app;
 
+// Local development server
 if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => {
-    console.log(`🚀 Server running locally on http://localhost:${PORT}`);
+    console.log(`🚀 Backend server running on http://localhost:${PORT}`);
+    console.log(`📍 API endpoint: http://localhost:${PORT}/api`);
   });
 }
