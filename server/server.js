@@ -5,8 +5,8 @@ const express = require("express");
 const path = require("path");
 
 // Import your database and routes
-const sequelize = require("../src/config/database");
-const routes = require("../src/routes");
+const sequelize = require("./src/config/database");
+const routes = require("./src/routes");
 
 const app = express();
 
@@ -122,10 +122,10 @@ app.use((err, req, res, next) => {
 module.exports = app;
 
 // Local development server
-// if (require.main === module) {
-//   const PORT = process.env.PORT || 3001;
-//   app.listen(PORT, () => {
-//     console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-//     console.log(`📍 API endpoint: http://localhost:${PORT}/api`);
-//   });
-// }
+if (require.main === module) {
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`🚀 Backend server running on http://localhost:${PORT}`);
+    console.log(`📍 API endpoint: http://localhost:${PORT}/api`);
+  });
+}
