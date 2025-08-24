@@ -12,20 +12,23 @@ const app = express();
 
 // ✅ Allowed origins untuk monorepo setup
 const allowedOrigins = [
-  // Local development
   "http://localhost:5173",
   "http://localhost:3000",
   "http://127.0.0.1:5173",
-  "https://winajaya-nqf7.vercel.app", // Domain utama Vercel
-
-  // Mobile/Capacitor
+  "https://winajaya.vercel.app", // Frontend Production
   "capacitor://localhost",
   "http://localhost",
 ];
 
-// ✅ CORS configuration
+// ✅ CORS configuration (pakai function supaya fleksibel)
 const corsOptions = {
-  origin: "https://winajaya.vercel.app",
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: [
@@ -45,21 +48,20 @@ app.use(cors(corsOptions));
 // ✅ Body parsing
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-app.use((req, res, next) => {
-  console.log("📢 DEBUG ORIGIN:", req.headers.origin);
-  console.log("📢 DEBUG METHOD:", req.method);
-  next();
-});
+
+// ✅ Logging middleware
 app.use((req, res, next) => {
   console.log(`🌐 ${new Date().toISOString()} - ${req.method} ${req.path}`);
   console.log(`📍 Origin: ${req.headers.origin || "none"}`);
-  console.log(
-    `🔐 Authorization: ${req.headers.authorization ? "present" : "none"}`
-  );
   next();
 });
 
-// ✅ Health check - penting untuk monorepo
+// ✅ Root endpoint (untuk health check Render)
+app.get("/", (req, res) => {
+  res.send("🚀 Backend is live on Render");
+});
+
+// ✅ Health check API
 app.get("/api", (req, res) => {
   res.json({
     message: "🚀 API is running",
@@ -78,7 +80,6 @@ app.use("/api/*", (req, res) => {
   res.status(404).json({
     error: "API route not found",
     path: req.path,
-    availableRoutes: ["/api", "/api/auth/login"], // sesuaikan dengan routes Anda
   });
 });
 
@@ -108,7 +109,6 @@ app.use((err, req, res, next) => {
     await sequelize.authenticate();
     console.log("✅ Database connection established.");
 
-    // Hanya sync di development, di production sebaiknya gunakan migrations
     if (process.env.NODE_ENV !== "production") {
       await sequelize.sync();
       console.log("✅ Models synchronized.");
@@ -118,10 +118,10 @@ app.use((err, req, res, next) => {
   }
 })();
 
-// Export untuk Vercel
+// Export untuk Render / Vercel
 module.exports = app;
 
-// Local development server
+// ✅ Local development server
 if (require.main === module) {
   const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => {
