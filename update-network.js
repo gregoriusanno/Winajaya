@@ -17,8 +17,8 @@ function getLocalIP() {
 function getProjectRoot() {
   const currentDir = process.cwd();
   // Jika dijalankan dari folder client, naik satu level
-  if (currentDir.endsWith('client')) {
-    return path.join(currentDir, '..');
+  if (currentDir.endsWith("client")) {
+    return path.join(currentDir, "..");
   }
   return currentDir;
 }
@@ -32,7 +32,7 @@ console.log(`\n🌐 IP Network Aktif: ${localIP}`);
 const serverPath = path.join(projectRoot, "server", "server.js");
 try {
   let serverContent = fs.readFileSync(serverPath, "utf8");
-  
+
   // Update allowedOrigins dengan IP baru
   const allowedOriginsNew = `const allowedOrigins = [
   "http://${localIP}:5173",
@@ -40,12 +40,14 @@ try {
   "http://${localIP}:3002",
   "capacitor://localhost",
   "http://localhost",
+  "https://winajaya-nqf7.vercel.app", 
+  "https://winajaya.vercel.app",       
 ];`;
 
   // Mencari dan mengganti bagian allowedOrigins
   const allowedOriginsRegex = /const allowedOrigins = \[([\s\S]*?)\];/;
   serverContent = serverContent.replace(allowedOriginsRegex, allowedOriginsNew);
-  
+
   fs.writeFileSync(serverPath, serverContent);
   console.log(`✅ server.js berhasil diupdate dengan IP: ${localIP}`);
 } catch (error) {
@@ -56,7 +58,7 @@ try {
 const possibleClientPaths = [
   path.join(projectRoot, "client", ".env"),
   path.join(projectRoot, ".env"),
-  ".env" // jika dijalankan dari dalam folder client
+  ".env", // jika dijalankan dari dalam folder client
 ];
 
 let clientEnvPath = null;
@@ -79,10 +81,13 @@ try {
 
   if (fs.existsSync(clientEnvPath)) {
     envContent = fs.readFileSync(clientEnvPath, "utf8");
-    
+
     if (envContent.includes("VITE_API_URL=")) {
       // Update VITE_API_URL yang sudah ada
-      envContent = envContent.replace(/VITE_API_URL=.*/g, `VITE_API_URL=${newApiUrl}`);
+      envContent = envContent.replace(
+        /VITE_API_URL=.*/g,
+        `VITE_API_URL=${newApiUrl}`
+      );
     } else {
       // Tambahkan VITE_API_URL baru
       envContent += `\nVITE_API_URL=${newApiUrl}`;
@@ -115,4 +120,4 @@ if (!process.env.npm_lifecycle_event) {
   console.log("   - Restart development server (npm run dev)");
 }
 
-console.log("\n✨ Selesai!\n"); 
+console.log("\n✨ Selesai!\n");
