@@ -13,7 +13,8 @@ const allowedOrigins = [
   "http://192.168.100.17:3002",
   "capacitor://localhost",
   "http://localhost",
-  "http://winajaya-nqf7.vercel.app",
+  "https://winajaya-nqf7.vercel.app", // backend (Vercel)
+  "https://winajaya.vercel.app", // frontend (Vercel)
 ];
 
 const app = express();
@@ -21,7 +22,16 @@ const app = express();
 // middleware
 app.use(
   cors({
-    origin: "*",
+    origin: function (origin, callback) {
+      // izinkan request tanpa origin (contoh: Postman, curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
