@@ -41,34 +41,16 @@ const corsOptions = {
 
 // ✅ Apply CORS
 app.use(cors(corsOptions));
-
-// ✅ Explicit preflight handler
-app.options("*", (req, res) => {
-  const origin = req.headers.origin;
-  console.log("📋 Preflight OPTIONS for:", req.path, "from:", origin);
-
-  if (!origin || allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin || "*");
-    res.header(
-      "Access-Control-Allow-Methods",
-      "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-    );
-    res.header(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, X-Requested-With, Accept, Origin"
-    );
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.status(200).end();
-  } else {
-    res.status(403).json({ error: "CORS not allowed" });
-  }
-});
+app.options("*", cors(corsOptions));
 
 // ✅ Body parsing
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-// ✅ Request logging
+app.use((req, res, next) => {
+  console.log("📢 DEBUG ORIGIN:", req.headers.origin);
+  console.log("📢 DEBUG METHOD:", req.method);
+  next();
+});
 app.use((req, res, next) => {
   console.log(`🌐 ${new Date().toISOString()} - ${req.method} ${req.path}`);
   console.log(`📍 Origin: ${req.headers.origin || "none"}`);
