@@ -6,7 +6,7 @@ import BerandaTeknisi from "./pages/BERANDA/BerandaTeknisi";
 import AbsenAkhir from "./pages/ABSEN/AbsenAkhir";
 
 import IzinSuccess from "./pages/PERTAMA/IzinSuccess";
-import Dashboard from "./pages/ADMIN/dashboard";
+import Dashboard from "./pages/ADMIN/Dashboard";
 import Register from "./pages/ADMIN/Register";
 
 function App() {
