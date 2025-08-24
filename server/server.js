@@ -16,12 +16,16 @@ const allowedOrigins = [
   "https://winajaya-nqf7.vercel.app", // backend (Vercel)
   "https://winajaya.vercel.app", // frontend (Vercel)
 ];
+
 const app = express();
 
-// ✅ CORS config
+// ✅ CORS config - FIXED
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       console.log("❌ CORS blocked origin:", origin);
@@ -30,12 +34,20 @@ const corsOptions = {
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+    "Origin",
+  ],
+  optionsSuccessStatus: 200, // For legacy browser support
 };
 
-// ✅ Apply CORS
+// ✅ Apply CORS BEFORE other middleware
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // handle preflight
+
+app.options("*", cors(corsOptions));
 
 // ✅ Body parser
 app.use(express.json());
@@ -49,15 +61,16 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin}`);
   next();
 });
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "https://winajaya.vercel.app"); // Or '*' for any origin
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE"); // Add allowed methods
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type"); // Add allowed headers
-  next();
-});
 
+// ✅ Routes
 app.use("/api", routes);
 
+// ✅ Root route for health check
+app.get("/", (req, res) => {
+  res.json({ message: "API is running", timestamp: new Date().toISOString() });
+});
+
+// Database initialization
 (async () => {
   try {
     await sequelize.authenticate();
