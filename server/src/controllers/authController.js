@@ -7,7 +7,7 @@ const login = async (req, res) => {
     // ✅ Tambahin header CORS di sini
     res.setHeader(
       "Access-Control-Allow-Origin",
-      "https://winajaya-two.vercel.app/"
+      "https://winajaya-two.vercel.app"
     );
     res.setHeader(
       "Access-Control-Allow-Methods",
