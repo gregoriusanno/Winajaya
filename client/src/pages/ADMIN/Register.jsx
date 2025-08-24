@@ -31,7 +31,8 @@ const Register = () => {
     }
 
     try {
-      const RegisterUrl = "http://localhost:3002/api/karyawan/register";
+      const RegisterUrl =
+        "https://winajaya-nqf7.vercel.app/api/karyawan/register";
       const response = await axios.post(
         RegisterUrl,
         {

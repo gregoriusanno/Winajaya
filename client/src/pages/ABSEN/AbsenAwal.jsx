@@ -113,7 +113,7 @@ const Absensi = () => {
       }
 
       const res = await fetch(
-        "http://localhost:3002/api/absensi/insertAbsensi",
+        "https://winajaya-nqf7.vercel.app/api/absensi/insertAbsensi",
         {
           method: "POST",
           headers: {

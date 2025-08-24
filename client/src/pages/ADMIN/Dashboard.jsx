@@ -18,7 +18,7 @@ const Dashboard = () => {
   const fetchData = async () => {
     try {
       const res = await fetch(
-        "http://localhost:3002/api/absensi/getAbsensiTable",
+        "https://winajaya-nqf7.vercel.app/api/absensi/getAbsensiTable",
         {
           method: "GET",
           headers: {
@@ -44,13 +44,16 @@ const Dashboard = () => {
   // Approve
   const handleApprove = async (absensiId) => {
     try {
-      const res = await fetch("http://localhost:3002/api/validation/Approve", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ absensiId }),
-      });
+      const res = await fetch(
+        "https://winajaya-nqf7.vercel.app/api/validation/Approve",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ absensiId }),
+        }
+      );
 
       const result = await res.json();
       if (result.status === "success") {
@@ -67,13 +70,16 @@ const Dashboard = () => {
   // Reject
   const handleReject = async (absensiId) => {
     try {
-      const res = await fetch("http://localhost:3002/api/validation/Reject", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ absensiId }),
-      });
+      const res = await fetch(
+        "https://winajaya-nqf7.vercel.app/api/validation/Reject",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ absensiId }),
+        }
+      );
 
       const result = await res.json();
       if (result.status === "success") {
