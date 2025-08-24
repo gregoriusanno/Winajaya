@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "update-env": "node ../update-network.js",
-    "dev": "npm run update-env && vite",
-    "build": "npm run update-env && vite build",
+    "dev": "vite",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
