@@ -21,9 +21,10 @@ const Absensi = () => {
   const [audio] = useState(new Audio(absenSound));
 
   const OUTLET_LOCATION = [
-    { lat: -7.930945915386587, lng: 112.62689965351042 },
-    { lat: -6.796001, lng: 111.896492 },
-    { lat: -6.797187209031785, lng: 111.87774215825094 },
+    { lat: -7.680147377581409, lng: 109.01948580042978 },
+    { lat: -6.458861196602965, lng: 106.93128735993798 },
+    { lat: -6.795841591386156, lng: 111.8965188176121 },
+    { lat: -7.928770755857916, lng: 112.612140636532 },
   ];
 
   const ALLOWED_RADIUS = 1500;
@@ -91,7 +92,7 @@ const Absensi = () => {
       const token = localStorage.getItem("token");
       const userData = localStorage.getItem("userData");
 
-      // await checkLocation();
+      await checkLocation();
 
       if (!userData) {
         setError("Data user tidak ditemukan. Silakan login ulang.");
@@ -113,7 +114,7 @@ const Absensi = () => {
       }
 
       const res = await fetch(
-        "https://winajaya-nqf7.vercel.app/api/absensi/insertAbsensi",
+        "https://winajaya-production.up.railway.app/api/absensi/insertAbsensi",
         {
           method: "POST",
           headers: {
