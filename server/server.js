@@ -43,7 +43,7 @@ app.use((req, res, next) => {
 // routes
 app.use("/api", routes);
 
-// ✅ Koneksi database sekali saja (bukan di setiap request)
+// ✅ Database connection (once, not per request)
 (async () => {
   try {
     await sequelize.authenticate();
@@ -55,4 +55,13 @@ app.use("/api", routes);
   }
 })();
 
+// ⚡ Export app for Vercel (no app.listen here)
 module.exports = app;
+
+// ✅ For local dev only, run with `node index.js`
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running locally on http://localhost:${PORT}`);
+  });
+}
