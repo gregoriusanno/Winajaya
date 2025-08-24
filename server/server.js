@@ -31,7 +31,7 @@ app.use(express.json());
 
 // Root & health check
 app.get("/", (req, res) => {
-  res.send("🚀 Backend is live (Vercel Serverless)");
+  res.send("🚀 Backend is live on Railway!");
 });
 
 app.get("/api", (req, res) => {
@@ -64,13 +64,8 @@ app.use((err, req, res, next) => {
   }
 })();
 
-// 👉 Export untuk serverless
-module.exports = app;
-
-// Lokal dev pakai listen
-if (require.main === module) {
-  const PORT = process.env.PORT || 3001;
-  app.listen(PORT, () =>
-    console.log(`🚀 Server running at http://localhost:${PORT}`)
-  );
-}
+// 👉 Always listen (important for Railway)
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
+});
