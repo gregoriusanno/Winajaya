@@ -25,24 +25,7 @@ const allowedOrigins = [
 
 // ✅ CORS configuration
 const corsOptions = {
-  origin: function (origin, callback) {
-    console.log("🔍 Request from origin:", origin);
-
-    // Allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin) {
-      console.log("✅ No origin header - allowing");
-      return callback(null, true);
-    }
-
-    if (allowedOrigins.includes(origin)) {
-      console.log("✅ Origin allowed:", origin);
-      callback(null, true);
-    } else {
-      console.log("❌ Origin blocked:", origin);
-      console.log("📝 Allowed origins:", allowedOrigins);
-      callback(new Error(`CORS blocked: ${origin}`));
-    }
-  },
+  origin: "https://winajaya.vercel.app",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: [
