@@ -73,7 +73,7 @@ const Absensi = () => {
           if (isWithinRadius) resolve(true);
           else
             reject(
-              `Anda harus berada dalam radius ${ALLOWED_RADIUS} meter dari salah satu outlet untuk melakukan absensi!`
+              `Anda harus berada dalam radius 1000 meter dari Plant untuk melakukan absensi!`
             );
         },
         () => {
